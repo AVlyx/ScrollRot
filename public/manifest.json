@@ -21,5 +21,37 @@
     "options_ui": {
         "page": "index.html",
         "open_in_tab": true
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/*",
+                "https://www.youtube.com/shorts/*"
+            ],
+            "js": [
+                "shortsContent.js"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "https://www.instagram.com/reel/*",
+                "https://www.instagram.com/*/reels/*",
+                "https://www.instagram.com/reels/*"
+            ],
+            "js": [
+                "reelsContent.js"
+            ],
+            "run_at": "document_start"
+        },
+        {
+            "matches": [
+                "https://www.tiktok.com/*"
+            ],
+            "js": [
+                "tiktokContent.js"
+            ],
+            "run_at": "document_start"
+        }
+    ]
 }
