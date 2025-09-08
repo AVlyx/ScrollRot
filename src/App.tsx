@@ -1,48 +1,89 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
+type PlatformSettings = {
+  delay: number;
+  enabled: boolean;
+};
+type PlatformProps = {
+  id: string;
+  name: string;
+  delay: number;
+  enabled: boolean;
+  onDelayChange: (value: number) => void;
+  onEnabledChange: (value: boolean) => void;
+};
+function Platform({ id, name, delay, enabled, onDelayChange, onEnabledChange }: PlatformProps) {
+  return (<div className="platform-section">
+    <h3 style={{ textTransform: 'capitalize' }}>{name}</h3>
+    <label>
+      Delay (s):&nbsp;
+      <input
+        type="number"
+        min={1}
+        value={delay}
+        onChange={e => onDelayChange(Number(e.target.value))}
+        style={{ width: 50 }}
+        id={id + '-delay'}
+      />
+    </label>
+    <button id={id + '-test-button'}>Test</button>
+    <label style={{ marginLeft: 8 }}>
+      <input
+        type="checkbox"
+        checked={enabled}
+        onChange={e => onEnabledChange(e.target.checked)}
+        id={id + '-enabled'}
+      />
+      &nbsp;Enable
+    </label>
+  </div>);
+}
+
 function App() {
+  // State for each platform
+  const [instagramSettings, setInstagramSettings] = useState<PlatformSettings>({ delay: 1, enabled: false });
+  const [shortsSettings, setShortsSettings] = useState<PlatformSettings>({ delay: 1, enabled: false });
+  const [tiktokSettings, setTiktokSettings] = useState<PlatformSettings>({ delay: 1, enabled: false });
 
-  const [color, setColor] = useState('red');
 
-  const onClick = async () => {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    chrome.scripting.executeScript<string[], void>({
-      target: { tabId: tab.id! },
-      args: [color],
-      func: (color) => {
-        document.body.style.backgroundColor = color;
-      }
-    });
+  const settings = {
+    instagram: instagramSettings,
+    shorts: shortsSettings,
+    tiktok: tiktokSettings
+  };
+
+  const setSettings = {
+    instagram: setInstagramSettings,
+    shorts: setShortsSettings,
+    tiktok: setTiktokSettings
+  };
+  const handleDelayChange = (platform: keyof typeof settings, value: number) => {
+    setSettings[platform]({ ...settings[platform], delay: value });
   }
 
+  const handleEnabledChange = (platform: keyof typeof settings, value: boolean) => {
+    setSettings[platform]({ ...settings[platform], enabled: value });
+  }
+
+
+
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
-        <button onClick={() => onClick()}>
-          hi!
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="popup-container">
+      <h2>ScrollRot Settings</h2>
+      {(['instagram', 'shorts', 'tiktok'] as const).map(platform => (
+        <Platform
+          id={platform}
+          key={platform}
+          name={platform}
+          delay={settings[platform].delay}
+          enabled={settings[platform].enabled}
+          onDelayChange={(value) => handleDelayChange(platform, value)}
+          onEnabledChange={(value) => handleEnabledChange(platform, value)}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default App
