@@ -1,13 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "Stripe and firebase",
+  "name": "Stripe and firebase React",
   "version": "1.0",
   "description": "Stripe and firebase",
   "action": {
-    "default_icon": "icon.png"
+    "default_popup": "index.html",
+    "default_icon": "assets/icon.png"
   },
-  "permissions": ["tabs", "identity", "identity.email"],
-  "host_permissions": ["https://*.chromiumapp.org/*"],
+  "permissions": ["tabs", "identity", "identity.email", "storage"],
+  "host_permissions": [
+    "https://*.chromiumapp.org/*",
+    "https://*.firebaseapp.com/",
+    "https://*.googleapis.com/"
+  ],
   "oauth2": {
     "client_id": "579601400309-5hlpl7grbob9q6tqbka9j60l7h7b3iu8.apps.googleusercontent.com",
     "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
@@ -15,10 +20,7 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
+
   "web_accessible_resources": [
     {
       "resources": ["firebase/*.js", "firebase/*/*.js"],
