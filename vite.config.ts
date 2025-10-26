@@ -1,26 +1,21 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { resolve } from "path";
 
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [["babel-plugin-react-compiler"]],
-      },
-    }),
-  ],
+  plugins: [react()],
   build: {
     rollupOptions: {
+      input: {
+        popup: resolve(__dirname, "src/popupPage/index.html"),
+        options: resolve(__dirname, "src/optionsPage/index.html"),
+      },
       output: {
-        manualChunks(id) {
-          if (id.includes("node_modules")) {
-            if (id.includes("react")) return "vendor-react";
-            if (id.includes("chart.js") || id.includes("d3"))
-              return "vendor-charts";
-            return "vendor"; // fallback for all other libs
-          }
-        },
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name].[ext]",
       },
     },
+    outDir: "dist",
   },
 });

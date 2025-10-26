@@ -6,12 +6,12 @@ import {
   authenticateUser,
   getSubscribtionType,
   type SubscriptionType,
-} from "./lib/auth-stripePayments";
-import { Purchase } from "./components";
+} from "../lib/auth-stripePayments";
+import { Purchase } from "../components";
 import type { User } from "firebase/auth/web-extension";
-import { LIFETIME_DEAL_PRICE_ID } from "./config/stripe_keys";
+import { LIFETIME_DEAL_PRICE_ID } from "../config/stripe_keys";
 
-const App = () => {
+const PopupApp = () => {
   const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionType>({ type: "none" });
   const [user, setUser] = useState<User | null>(null);
 
@@ -38,4 +38,4 @@ const App = () => {
   return <pre>{JSON.stringify(subscriptionStatus, null, 2)}</pre>;
 };
 
-export default App;
+export default PopupApp;

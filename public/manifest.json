@@ -4,7 +4,7 @@
   "version": "1.0",
   "description": "Stripe and firebase",
   "action": {
-    "default_popup": "index.html",
+    "default_popup": "src/popupPage/index.html",
     "default_icon": "assets/icon.png"
   },
   "permissions": ["tabs", "identity", "identity.email", "storage"],

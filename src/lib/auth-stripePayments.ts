@@ -15,7 +15,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { signOut } from "firebase/auth";
 
 export interface SubscriptionType {
   type: "lifetime" | "membership" | "free trial" | "none" | "not implemented yet" | "error";
