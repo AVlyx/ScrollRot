@@ -254,101 +254,8 @@ class InstagramReelsBlocker {
       this.config.autoPlayAfterBlock
     );
 
-    // Find the IGCorePressable wrapper - it has an onPress method
-    let clickableElement: HTMLElement | null = null;
-
-    // Strategy 1: Look for element with React Fiber that has onPress
-    let parent = video.parentElement;
-    let depth = 0;
-    while (parent && depth < 10) {
-      // Check for React Fiber properties
-      const fiberKey = Object.keys(parent).find(
-        (key) =>
-          key.startsWith("__reactFiber") ||
-          key.startsWith("__reactInternalInstance") ||
-          key.startsWith("__reactProps")
-      );
-
-      if (fiberKey) {
-        const fiber = (parent as any)[fiberKey];
-        // Check if this fiber has onPress in its props or memoizedProps
-        const hasOnPress =
-          fiber?.memoizedProps?.onPress ||
-          fiber?.pendingProps?.onPress ||
-          fiber?.return?.memoizedProps?.onPress;
-
-        if (hasOnPress) {
-          clickableElement = parent;
-          console.log(
-            "[Instagram Reels Blocker] Found IGCorePressable with onPress:",
-            parent.tagName,
-            parent.className
-          );
-          break;
-        }
-      }
-
-      parent = parent.parentElement;
-      depth++;
-    }
-
-    // Strategy 2: Look for parent with role="button" (common for pressable elements)
-    if (!clickableElement) {
-      parent = video.parentElement;
-      depth = 0;
-      while (parent && depth < 10) {
-        if (parent.getAttribute("role") === "button" || parent.getAttribute("tabindex") === "0") {
-          clickableElement = parent;
-          console.log(
-            "[Instagram Reels Blocker] Found clickable element (role=button):",
-            parent.tagName,
-            parent.className
-          );
-          break;
-        }
-        parent = parent.parentElement;
-        depth++;
-      }
-    }
-
-    // Strategy 3: Look for div with cursor pointer and specific event listeners
-    if (!clickableElement) {
-      parent = video.parentElement;
-      depth = 0;
-      while (parent && depth < 10) {
-        const style = window.getComputedStyle(parent);
-        if (style.cursor === "pointer" && parent.tagName === "DIV") {
-          clickableElement = parent;
-          console.log(
-            "[Instagram Reels Blocker] Found clickable element (cursor:pointer):",
-            parent.tagName,
-            parent.className
-          );
-          break;
-        }
-        parent = parent.parentElement;
-        depth++;
-      }
-    }
-
-    // Strategy 4: Fallback to video's direct parent
-    if (!clickableElement) {
-      clickableElement = video.parentElement;
-      console.log("[Instagram Reels Blocker] Using fallback (video parent)");
-    }
-
-    // Click the appropriate element to trigger Instagram's pause
-    if (clickableElement) {
-      console.log(
-        "[Instagram Reels Blocker] Clicking element to pause:",
-        clickableElement.tagName,
-        clickableElement.className.substring(0, 50)
-      );
-      clickableElement.click();
-    } else {
-      console.log("[Instagram Reels Blocker] No clickable element found, clicking video directly");
-      video.click();
-    }
+    // Pause the video immediately
+    video.pause();
 
     // Prevent play events during block period
     const preventPlay = (e: Event) => {
@@ -356,10 +263,7 @@ class InstagramReelsBlocker {
       if (timeRemaining > 0) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        // Ensure video stays paused
-        if (!video.paused) {
-          video.pause();
-        }
+        video.pause();
       }
     };
 
@@ -530,7 +434,7 @@ let reelsBlocker: InstagramReelsBlocker | null = null;
 // Configuration - You can modify these settings
 const config: Partial<ReelsBlockerConfig> = {
   blockDuration: 5000, // 5 seconds in milliseconds
-  autoPlayAfterBlock: false, // Set to true if you want videos to auto-play after the block
+  autoPlayAfterBlock: true, // Set to true if you want videos to auto-play after the block
 };
 
 // Start blocking when on Instagram Reels
