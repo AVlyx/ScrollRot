@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { getSubscriptionType, type SubscriptionType } from "../lib/stripe";
 import { Purchase } from "../components";
 import type { User } from "firebase/auth/web-extension";
-import { LIFETIME_DEAL_PRICE_ID } from "../config/stripe_keys";
+import {
+  // LIFETIME_DEAL_PRICE_ID ,
+  MEMBERSHIP_PRICE_ID,
+} from "../config/stripe_keys";
 import { getAuthenticatedUser } from "../lib/auth";
 
 const OptionsApp = () => {
@@ -28,7 +31,7 @@ const OptionsApp = () => {
 
   if (subscriptionStatus.subscriptionType == "none") {
     const userProp = { uid: user.uid, email: user.email };
-    return <Purchase user={userProp} priceId={LIFETIME_DEAL_PRICE_ID} mode="payment" />;
+    return <Purchase user={userProp} priceId={MEMBERSHIP_PRICE_ID} mode="subscription" />;
   }
   return <pre>{JSON.stringify(subscriptionStatus, null, 2)}</pre>;
 };

@@ -7,8 +7,8 @@ import {
 } from "firebase/auth/web-extension";
 
 export async function getChromeEmailProfile(): Promise<string | null> {
-  const { email } = await chrome.identity.getProfileUserInfo();
-  console.log({ email });
+  const { email, id } = await chrome.identity.getProfileUserInfo();
+  console.log({ email, id });
   return email || null;
 }
 

@@ -85,7 +85,9 @@ export async function getSubscriptionTypeFirebase(user: User): Promise<Subscript
       console.log("Active subscription:", sub);
 
       // Stripe extension usually includes `current_period_end` in seconds
-      const periodEndSeconds = sub.current_period_end;
+
+      const periodEndSeconds = sub.current_period_end.seconds;
+      console.log({ periodEndSeconds });
       const periodEndMs = periodEndSeconds ? periodEndSeconds * 1000 : undefined;
 
       if (sub.status === "trialing") {
