@@ -5,11 +5,12 @@ import { db } from "../config/firebase-init";
 interface PurchaseProps {
   user: { uid: string; email: string | null };
   priceId: string;
+  mode: "payment" | "subscription";
 }
 
 type PurchaseStage = "idle" | "processing" | "ready" | "error";
 
-const Purchase = ({ user, priceId }: PurchaseProps) => {
+const Purchase = ({ user, priceId, mode }: PurchaseProps) => {
   const [stage, setStage] = useState<PurchaseStage>("idle");
   const [error, setError] = useState<string | null>(null);
   const [sessionUrl, setSessionUrl] = useState<string | null>(null);
@@ -27,7 +28,7 @@ const Purchase = ({ user, priceId }: PurchaseProps) => {
         price: priceId,
         success_url: "https://example.com/success",
         cancel_url: "https://example.com/cancel",
-        mode: "payment",
+        mode: mode,
         metadata: {
           userId: user.uid,
           userEmail: user.email,

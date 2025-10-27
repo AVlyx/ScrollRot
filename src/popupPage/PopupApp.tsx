@@ -1,28 +1,22 @@
-// src/App.tsx
 import { useEffect, useState } from "react";
-import {
-  // getChromeEmailProfile,
-  getAuthToken,
-  authenticateUser,
-  getSubscribtionType,
-  type SubscriptionType,
-} from "../lib/auth-stripePayments";
+import { getSubscriptionType, type SubscriptionType } from "../lib/stripe";
 import { Purchase } from "../components";
 import type { User } from "firebase/auth/web-extension";
 import { LIFETIME_DEAL_PRICE_ID } from "../config/stripe_keys";
+import { getAuthenticatedUser } from "../lib/auth";
 
 const PopupApp = () => {
-  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionType>({ type: "none" });
+  const [subscriptionStatus, setSubscriptionStatus] = useState<SubscriptionType>({
+    subscriptionType: "none",
+  });
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const token = await getAuthToken();
-      const puser = await authenticateUser(token!);
-      const psubscriptionStatus = await getSubscribtionType(puser);
-
+      const puser = await getAuthenticatedUser();
+      const subscriptionType = await getSubscriptionType();
       setUser(puser);
-      setSubscriptionStatus(psubscriptionStatus);
+      setSubscriptionStatus(subscriptionType);
     };
     fetchProfile();
   }, []);
@@ -31,9 +25,9 @@ const PopupApp = () => {
     return <h1>make sure you are logged in to chrome and sync is enabled</h1>;
   }
 
-  if (subscriptionStatus.type == "none") {
+  if (subscriptionStatus.subscriptionType == "none") {
     const userProp = { uid: user.uid, email: user.email };
-    return <Purchase user={userProp} priceId={LIFETIME_DEAL_PRICE_ID} />;
+    return <Purchase user={userProp} priceId={LIFETIME_DEAL_PRICE_ID} mode="payment" />;
   }
   return <pre>{JSON.stringify(subscriptionStatus, null, 2)}</pre>;
 };
