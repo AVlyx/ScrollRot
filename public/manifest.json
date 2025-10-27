@@ -26,5 +26,12 @@
       "resources": ["firebase/*.js", "firebase/*/*.js"],
       "matches": ["<all_urls>"]
     }
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://www.instagram.com/*"],
+      "js": ["content-scripts/instagram.js"],
+      "run_at": "document_start"
+    }
   ]
 }

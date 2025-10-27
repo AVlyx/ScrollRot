@@ -1,0 +1,591 @@
+// Instagram Reels Content Script
+// Blocks video playback for 5 seconds after scrolling to a new reel
+
+interface BlockedReel {
+  element: HTMLElement;
+  unblockTime: number;
+  observer?: IntersectionObserver;
+}
+
+interface ReelsBlockerConfig {
+  blockDuration: number; // Duration in milliseconds
+  autoPlayAfterBlock: boolean; // Whether to auto-play video after block ends
+}
+
+class InstagramReelsBlocker {
+  private blockedReels: Map<HTMLElement, BlockedReel> = new Map();
+  private observedContainers: Set<HTMLElement> = new Set();
+  private processedVideos: WeakSet<HTMLVideoElement> = new WeakSet();
+  private config: ReelsBlockerConfig;
+  private mainObserver: MutationObserver | null = null;
+  private intersectionObserver: IntersectionObserver | null = null;
+  private observeDebounceTimer: number | null = null;
+
+  constructor(config?: Partial<ReelsBlockerConfig>) {
+    this.config = {
+      blockDuration: 5000, // 5 seconds default
+      autoPlayAfterBlock: false, // Don't auto-play by default
+      ...config,
+    };
+    this.init();
+  }
+
+  private init(): void {
+    console.log("[Instagram Reels Blocker] Initializing...");
+
+    // Wait for DOM to be ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => this.start());
+    } else {
+      this.start();
+    }
+  }
+
+  private start(): void {
+    // Create intersection observer to detect when reels come into view
+    this.createIntersectionObserver();
+
+    // Observe existing reels once
+    this.observeExistingReels();
+
+    // Watch for new reels being added to the DOM
+    this.watchForNewReels();
+
+    console.log("[Instagram Reels Blocker] Started successfully");
+  }
+
+  private createIntersectionObserver(): void {
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const reelContainer = entry.target as HTMLElement;
+            this.handleReelInView(reelContainer);
+          }
+        });
+      },
+      {
+        threshold: 0.5, // Trigger when 50% of the reel is visible
+        rootMargin: "0px",
+      }
+    );
+  }
+
+  private observeExistingReels(): void {
+    // Instagram Reels are typically in articles or divs with specific roles
+    // The video container structure: article > div > div > video
+    const reelContainers = this.findReelContainers();
+
+    let newObservations = 0;
+    reelContainers.forEach((container) => {
+      // Check if we're already observing this container
+      if (!this.observedContainers.has(container) && this.intersectionObserver) {
+        this.intersectionObserver.observe(container);
+        this.observedContainers.add(container);
+        newObservations++;
+        console.log(
+          "[Instagram Reels Blocker] Now observing container:",
+          container.tagName,
+          container.className.substring(0, 50)
+        );
+      }
+    });
+
+    if (newObservations > 0) {
+      console.log(
+        `[Instagram Reels Blocker] Added ${newObservations} new containers for observation (total observed: ${this.observedContainers.size})`
+      );
+    }
+  }
+
+  private findReelContainers(): HTMLElement[] {
+    const containers: HTMLElement[] = [];
+
+    // Instagram Reels selectors - try multiple approaches
+
+    // Method 1: Find all video elements
+    const videos = document.querySelectorAll("video");
+    console.log(`[Instagram Reels Blocker] Found ${videos.length} video elements`);
+
+    videos.forEach((video) => {
+      // Find the closest article or main container
+      // Instagram uses various structures, so we try multiple selectors
+      let container = video.closest("article");
+
+      if (!container) {
+        // Try to find parent div that contains the video and is scrollable
+        let parent = video.parentElement;
+        let depth = 0;
+        while (parent && depth < 10) {
+          const style = window.getComputedStyle(parent);
+          // Look for scroll snap or large height containers
+          if (
+            parent.tagName === "DIV" &&
+            (style.scrollSnapAlign !== "none" || parent.offsetHeight > 400)
+          ) {
+            container = parent;
+            break;
+          }
+          parent = parent.parentElement;
+          depth++;
+        }
+      }
+
+      // Fallback: use the video's closest div with significant height
+      if (!container) {
+        let parent = video.parentElement;
+        let depth = 0;
+        while (parent && depth < 5) {
+          if (parent.offsetHeight > 300) {
+            container = parent;
+            break;
+          }
+          parent = parent.parentElement;
+          depth++;
+        }
+      }
+
+      if (container && !containers.includes(container as HTMLElement)) {
+        containers.push(container as HTMLElement);
+      }
+    });
+
+    // Method 2: If no containers found, look for Instagram's specific structure
+    if (containers.length === 0) {
+      // Instagram Reels often use specific class patterns or data attributes
+      const reelCandidates = document.querySelectorAll('div[role="presentation"]');
+      reelCandidates.forEach((candidate) => {
+        if (candidate.querySelector("video")) {
+          containers.push(candidate as HTMLElement);
+        }
+      });
+    }
+
+    return containers;
+  }
+
+  private watchForNewReels(): void {
+    this.mainObserver = new MutationObserver((mutations) => {
+      let newVideosAdded = false;
+
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as HTMLElement;
+            // Only trigger if we find actual video elements, not just any div change
+            if (element.tagName === "VIDEO" || element.querySelector("video")) {
+              newVideosAdded = true;
+            }
+          }
+        });
+      });
+
+      if (newVideosAdded) {
+        // Cancel any pending observation
+        if (this.observeDebounceTimer !== null) {
+          clearTimeout(this.observeDebounceTimer);
+        }
+
+        // Debounce to avoid excessive checks - only call once per batch of mutations
+        console.log(
+          "[Instagram Reels Blocker] New video elements detected in DOM, scheduling observation..."
+        );
+        this.observeDebounceTimer = window.setTimeout(() => {
+          this.observeDebounceTimer = null;
+          this.observeExistingReels();
+        }, 300);
+      }
+    });
+
+    // More selective observation - only watch for childList changes, not attributes or character data
+    this.mainObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: false,
+    });
+  }
+
+  private handleReelInView(reelContainer: HTMLElement): void {
+    // Check if this reel is already blocked or being processed
+    if (this.blockedReels.has(reelContainer)) {
+      console.log("[Instagram Reels Blocker] Container already blocked, skipping");
+      return;
+    }
+
+    const video = reelContainer.querySelector("video");
+
+    if (!video) {
+      return;
+    }
+
+    // Check if we've already processed this specific video
+    if (this.processedVideos.has(video)) {
+      console.log("[Instagram Reels Blocker] Video already processed, skipping");
+      return;
+    }
+
+    this.processedVideos.add(video);
+    console.log("[Instagram Reels Blocker] New reel in view, blocking for 5s");
+
+    // Block the video
+    this.blockVideo(video, reelContainer);
+  }
+
+  private blockVideo(video: HTMLVideoElement, container: HTMLElement): void {
+    // Check once more if already blocked (race condition protection)
+    if (this.blockedReels.has(container)) {
+      console.log("[Instagram Reels Blocker] Container already blocked in blockVideo, aborting");
+      return;
+    }
+
+    const unblockTime = Date.now() + this.config.blockDuration;
+
+    // Store the blocked reel IMMEDIATELY to prevent race conditions
+    this.blockedReels.set(container, {
+      element: container,
+      unblockTime: unblockTime,
+    });
+
+    console.log(
+      "[Instagram Reels Blocker] Blocking video for",
+      this.config.blockDuration,
+      "ms, autoPlayAfterBlock:",
+      this.config.autoPlayAfterBlock
+    );
+
+    // Find the IGCorePressable wrapper - it has an onPress method
+    let clickableElement: HTMLElement | null = null;
+
+    // Strategy 1: Look for element with React Fiber that has onPress
+    let parent = video.parentElement;
+    let depth = 0;
+    while (parent && depth < 10) {
+      // Check for React Fiber properties
+      const fiberKey = Object.keys(parent).find(
+        (key) =>
+          key.startsWith("__reactFiber") ||
+          key.startsWith("__reactInternalInstance") ||
+          key.startsWith("__reactProps")
+      );
+
+      if (fiberKey) {
+        const fiber = (parent as any)[fiberKey];
+        // Check if this fiber has onPress in its props or memoizedProps
+        const hasOnPress =
+          fiber?.memoizedProps?.onPress ||
+          fiber?.pendingProps?.onPress ||
+          fiber?.return?.memoizedProps?.onPress;
+
+        if (hasOnPress) {
+          clickableElement = parent;
+          console.log(
+            "[Instagram Reels Blocker] Found IGCorePressable with onPress:",
+            parent.tagName,
+            parent.className
+          );
+          break;
+        }
+      }
+
+      parent = parent.parentElement;
+      depth++;
+    }
+
+    // Strategy 2: Look for parent with role="button" (common for pressable elements)
+    if (!clickableElement) {
+      parent = video.parentElement;
+      depth = 0;
+      while (parent && depth < 10) {
+        if (parent.getAttribute("role") === "button" || parent.getAttribute("tabindex") === "0") {
+          clickableElement = parent;
+          console.log(
+            "[Instagram Reels Blocker] Found clickable element (role=button):",
+            parent.tagName,
+            parent.className
+          );
+          break;
+        }
+        parent = parent.parentElement;
+        depth++;
+      }
+    }
+
+    // Strategy 3: Look for div with cursor pointer and specific event listeners
+    if (!clickableElement) {
+      parent = video.parentElement;
+      depth = 0;
+      while (parent && depth < 10) {
+        const style = window.getComputedStyle(parent);
+        if (style.cursor === "pointer" && parent.tagName === "DIV") {
+          clickableElement = parent;
+          console.log(
+            "[Instagram Reels Blocker] Found clickable element (cursor:pointer):",
+            parent.tagName,
+            parent.className
+          );
+          break;
+        }
+        parent = parent.parentElement;
+        depth++;
+      }
+    }
+
+    // Strategy 4: Fallback to video's direct parent
+    if (!clickableElement) {
+      clickableElement = video.parentElement;
+      console.log("[Instagram Reels Blocker] Using fallback (video parent)");
+    }
+
+    // Click the appropriate element to trigger Instagram's pause
+    if (clickableElement) {
+      console.log(
+        "[Instagram Reels Blocker] Clicking element to pause:",
+        clickableElement.tagName,
+        clickableElement.className.substring(0, 50)
+      );
+      clickableElement.click();
+    } else {
+      console.log("[Instagram Reels Blocker] No clickable element found, clicking video directly");
+      video.click();
+    }
+
+    // Prevent play events during block period
+    const preventPlay = (e: Event) => {
+      const timeRemaining = unblockTime - Date.now();
+      if (timeRemaining > 0) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        // Ensure video stays paused
+        if (!video.paused) {
+          video.pause();
+        }
+      }
+    };
+
+    // Use capture phase to intercept before Instagram's handlers
+    video.addEventListener("play", preventPlay, { capture: true });
+    video.addEventListener("playing", preventPlay, { capture: true });
+
+    // Set timeout to unblock
+    setTimeout(() => {
+      video.removeEventListener("play", preventPlay, { capture: true });
+      video.removeEventListener("playing", preventPlay, { capture: true });
+      this.blockedReels.delete(container);
+      console.log("[Instagram Reels Blocker] Unblocked reel, playback allowed");
+
+      // Auto-play only if configured
+      if (this.config.autoPlayAfterBlock) {
+        console.log("[Instagram Reels Blocker] Auto-play enabled, attempting to play...");
+
+        // Try to play immediately
+        const attemptPlay = () => {
+          const currentVideo = container.querySelector("video");
+          if (currentVideo) {
+            console.log("[Instagram Reels Blocker] Video element found, calling play()");
+            console.log(
+              "[Instagram Reels Blocker] Video paused:",
+              currentVideo.paused,
+              "readyState:",
+              currentVideo.readyState
+            );
+
+            // Ensure video is in a playable state
+            if (currentVideo.readyState >= 2) {
+              // HAVE_CURRENT_DATA or better
+              currentVideo
+                .play()
+                .then(() => {
+                  console.log("[Instagram Reels Blocker] ✓ Auto-play successful!");
+                })
+                .catch((error) => {
+                  console.error("[Instagram Reels Blocker] ✗ Auto-play failed:", error);
+                  // Try clicking the video as fallback
+                  currentVideo.click();
+                });
+            } else {
+              // Wait for video to be ready
+              console.log(
+                "[Instagram Reels Blocker] Video not ready, waiting for loadeddata event"
+              );
+              currentVideo.addEventListener(
+                "loadeddata",
+                () => {
+                  currentVideo
+                    .play()
+                    .then(() => {
+                      console.log(
+                        "[Instagram Reels Blocker] ✓ Auto-play successful after loadeddata!"
+                      );
+                    })
+                    .catch((error) => {
+                      console.error(
+                        "[Instagram Reels Blocker] ✗ Auto-play failed after loadeddata:",
+                        error
+                      );
+                    });
+                },
+                { once: true }
+              );
+            }
+          } else {
+            console.log("[Instagram Reels Blocker] Video element not found for auto-play");
+          }
+        };
+
+        // Small delay to ensure all event listeners are cleaned up
+        setTimeout(attemptPlay, 100);
+      }
+    }, this.config.blockDuration);
+
+    // Add visual indicator (optional)
+    this.addBlockIndicator(container, unblockTime);
+  }
+
+  private addBlockIndicator(container: HTMLElement, unblockTime: number): void {
+    // Find the video container to append the overlay
+    const videoWrapper = container.querySelector("video")?.parentElement;
+    if (!videoWrapper) {
+      return;
+    }
+
+    // Check if overlay already exists to prevent duplicates
+    const existingOverlay = videoWrapper.querySelector(".reels-blocker-overlay");
+    if (existingOverlay) {
+      console.log("[Instagram Reels Blocker] Overlay already exists, skipping");
+      return;
+    }
+
+    // Create a visual overlay to show blocking is active
+    const overlay = document.createElement("div");
+    overlay.className = "reels-blocker-overlay";
+    overlay.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 9999;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    `;
+
+    const icon = document.createElement("span");
+    icon.textContent = "⏸️";
+    icon.style.fontSize = "20px";
+
+    const text = document.createElement("span");
+    text.className = "reels-blocker-text";
+
+    overlay.appendChild(icon);
+    overlay.appendChild(text);
+
+    videoWrapper.style.position = "relative";
+    videoWrapper.appendChild(overlay);
+
+    // Update countdown
+    const updateCountdown = () => {
+      const remaining = Math.ceil((unblockTime - Date.now()) / 1000);
+      if (remaining > 0) {
+        text.textContent = `Wait ${remaining}s...`;
+        requestAnimationFrame(updateCountdown);
+      } else {
+        overlay.remove();
+      }
+    };
+
+    updateCountdown();
+  }
+
+  public destroy(): void {
+    if (this.mainObserver) {
+      this.mainObserver.disconnect();
+    }
+
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+    }
+
+    if (this.observeDebounceTimer !== null) {
+      clearTimeout(this.observeDebounceTimer);
+    }
+
+    this.blockedReels.clear();
+    this.observedContainers.clear();
+    console.log("[Instagram Reels Blocker] Destroyed");
+  }
+}
+
+// Initialize the blocker
+let reelsBlocker: InstagramReelsBlocker | null = null;
+
+// Configuration - You can modify these settings
+const config: Partial<ReelsBlockerConfig> = {
+  blockDuration: 5000, // 5 seconds in milliseconds
+  autoPlayAfterBlock: false, // Set to true if you want videos to auto-play after the block
+};
+
+// Start blocking when on Instagram Reels
+if (window.location.hostname.includes("instagram.com")) {
+  reelsBlocker = new InstagramReelsBlocker(config);
+}
+
+// Example: Update configuration dynamically
+// This can be called from your extension's popup or options page
+(window as any).updateReelsBlockerConfig = (newConfig: Partial<ReelsBlockerConfig>) => {
+  if (reelsBlocker) {
+    reelsBlocker.destroy();
+  }
+  reelsBlocker = new InstagramReelsBlocker({ ...config, ...newConfig });
+  console.log("[Instagram Reels Blocker] Configuration updated:", newConfig);
+};
+
+// Handle navigation changes (for SPAs like Instagram)
+let lastUrl = window.location.href;
+const navigationObserver = new MutationObserver(() => {
+  const currentUrl = window.location.href;
+  if (currentUrl !== lastUrl) {
+    lastUrl = currentUrl;
+
+    // Reinitialize if navigating to/from reels
+    if (reelsBlocker) {
+      reelsBlocker.destroy();
+    }
+
+    if (window.location.hostname.includes("instagram.com")) {
+      setTimeout(() => {
+        reelsBlocker = new InstagramReelsBlocker(config);
+      }, 500); // Small delay to let Instagram load
+    }
+  }
+});
+
+// Wait for body to exist before observing
+const observeNavigation = () => {
+  if (document.body) {
+    navigationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  } else {
+    // Body doesn't exist yet, wait for it
+    setTimeout(observeNavigation, 100);
+  }
+};
+
+observeNavigation();
+
+// Cleanup on page unload
+window.addEventListener("beforeunload", () => {
+  if (reelsBlocker) {
+    reelsBlocker.destroy();
+  }
+});
