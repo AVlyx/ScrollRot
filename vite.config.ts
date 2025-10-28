@@ -10,6 +10,7 @@ export default defineConfig({
         popup: resolve(__dirname, "src/popupPage/index.html"),
         options: resolve(__dirname, "src/optionsPage/index.html"),
         instagram: resolve(__dirname, "src/content-scripts/instagram.ts"),
+        youtube: resolve(__dirname, "src/content-scripts/youtube.ts"),
       },
       output: {
         entryFileNames: (chunkInfo) => {
