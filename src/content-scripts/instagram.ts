@@ -1,5 +1,7 @@
 // Instagram Reels Content Script
 // Blocks video playback for 5 seconds after scrolling to a new reel
+import { getBlockerConfig } from "../lib/storage";
+import type { BlockerConfig } from "../types";
 
 interface BlockedReel {
   element: HTMLElement;
@@ -7,26 +9,17 @@ interface BlockedReel {
   observer?: IntersectionObserver;
 }
 
-interface ReelsBlockerConfig {
-  blockDuration: number; // Duration in milliseconds
-  autoPlayAfterBlock: boolean; // Whether to auto-play video after block ends
-}
-
 class InstagramReelsBlocker {
   private blockedReels: Map<HTMLElement, BlockedReel> = new Map();
   private observedContainers: Set<HTMLElement> = new Set();
   private processedVideos: WeakSet<HTMLVideoElement> = new WeakSet();
-  private config: ReelsBlockerConfig;
+  private config: BlockerConfig;
   private mainObserver: MutationObserver | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private observeDebounceTimer: number | null = null;
 
-  constructor(config?: Partial<ReelsBlockerConfig>) {
-    this.config = {
-      blockDuration: 5000, // 5 seconds default
-      autoPlayAfterBlock: false, // Don't auto-play by default
-      ...config,
-    };
+  constructor(config: BlockerConfig) {
+    this.config = config;
     this.init();
   }
 
@@ -239,7 +232,7 @@ class InstagramReelsBlocker {
       return;
     }
 
-    const unblockTime = Date.now() + this.config.blockDuration;
+    const unblockTime = Date.now() + this.config.blockDuration * 1000;
 
     // Store the blocked reel IMMEDIATELY to prevent race conditions
     this.blockedReels.set(container, {
@@ -340,7 +333,7 @@ class InstagramReelsBlocker {
         // Small delay to ensure all event listeners are cleaned up
         setTimeout(attemptPlay, 100);
       }
-    }, this.config.blockDuration);
+    }, this.config.blockDuration * 1000);
 
     // Add visual indicator (optional)
     this.addBlockIndicator(container, unblockTime);
@@ -430,62 +423,60 @@ class InstagramReelsBlocker {
 
 // Initialize the blocker
 let reelsBlocker: InstagramReelsBlocker | null = null;
+(async () => {
+  // Configuration - You can modify these settings
+  const config: BlockerConfig = await getBlockerConfig("reels");
 
-// Configuration - You can modify these settings
-const config: Partial<ReelsBlockerConfig> = {
-  blockDuration: 5000, // 5 seconds in milliseconds
-  autoPlayAfterBlock: true, // Set to true if you want videos to auto-play after the block
-};
-
-// Start blocking when on Instagram Reels
-if (window.location.hostname.includes("instagram.com")) {
-  reelsBlocker = new InstagramReelsBlocker(config);
-}
-
-// Example: Update configuration dynamically
-// This can be called from your extension's popup or options page
-(window as any).updateReelsBlockerConfig = (newConfig: Partial<ReelsBlockerConfig>) => {
-  if (reelsBlocker) {
-    reelsBlocker.destroy();
+  // Start blocking when on Instagram Reels
+  if (window.location.hostname.includes("instagram.com")) {
+    reelsBlocker = new InstagramReelsBlocker(config);
   }
-  reelsBlocker = new InstagramReelsBlocker({ ...config, ...newConfig });
-  console.log("[Instagram Reels Blocker] Configuration updated:", newConfig);
-};
 
-// Handle navigation changes (for SPAs like Instagram)
-let lastUrl = window.location.href;
-const navigationObserver = new MutationObserver(() => {
-  const currentUrl = window.location.href;
-  if (currentUrl !== lastUrl) {
-    lastUrl = currentUrl;
-
-    // Reinitialize if navigating to/from reels
+  // Example: Update configuration dynamically
+  // This can be called from your extension's popup or options page
+  (window as any).updateBlockerConfig = (newConfig: BlockerConfig) => {
     if (reelsBlocker) {
       reelsBlocker.destroy();
     }
+    reelsBlocker = new InstagramReelsBlocker({ ...config, ...newConfig });
+    console.log("[Instagram Reels Blocker] Configuration updated:", newConfig);
+  };
 
-    if (window.location.hostname.includes("instagram.com")) {
-      setTimeout(() => {
-        reelsBlocker = new InstagramReelsBlocker(config);
-      }, 500); // Small delay to let Instagram load
+  // Handle navigation changes (for SPAs like Instagram)
+  let lastUrl = window.location.href;
+  const navigationObserver = new MutationObserver(() => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
+
+      // Reinitialize if navigating to/from reels
+      if (reelsBlocker) {
+        reelsBlocker.destroy();
+      }
+
+      if (window.location.hostname.includes("instagram.com")) {
+        setTimeout(() => {
+          reelsBlocker = new InstagramReelsBlocker(config);
+        }, 500); // Small delay to let Instagram load
+      }
     }
-  }
-});
+  });
 
-// Wait for body to exist before observing
-const observeNavigation = () => {
-  if (document.body) {
-    navigationObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-  } else {
-    // Body doesn't exist yet, wait for it
-    setTimeout(observeNavigation, 100);
-  }
-};
+  // Wait for body to exist before observing
+  const observeNavigation = () => {
+    if (document.body) {
+      navigationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    } else {
+      // Body doesn't exist yet, wait for it
+      setTimeout(observeNavigation, 100);
+    }
+  };
 
-observeNavigation();
+  observeNavigation();
+})();
 
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {

@@ -9,9 +9,9 @@
     "react-dom": "^19.1.1"
   },
   "scripts": {
-    "dev": "vite --config vite.app.config.ts",
-    "build:app": "vite build --config vite.app.config.ts",
-    "build:content": "vite build --config vite.content.config.ts",
+    "dev": "vite --config vite.config.ts",
+    "build:app": "vite build --config vite.config.ts",
+    "build:content": "node build-content-scripts.mjs",
     "build": "npm run build:app && npm run build:content"
   },
   "devDependencies": {
