@@ -14,10 +14,14 @@ export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
   }
 }
 
-export async function getBlockerConfig(platform: Platform): Promise<BlockerConfig | null> {
+export async function getBlockerConfig(platform: Platform): Promise<BlockerConfig> {
   const allconfig: AllBlockerConfigs | null = await getAllBlockerConfig();
   if (!allconfig) {
-    return null;
+    return {
+      enabled: true,
+      autoPlayAfterBlock: true,
+      blockDuration: 5000,
+    };
   }
   return allconfig[platform];
 }

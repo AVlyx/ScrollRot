@@ -1,33 +1,29 @@
 // YouTube Shorts Content Script
 // Blocks video playback for 5 seconds after scrolling to a new short
 
+import { getBlockerConfig } from "../lib/storage";
+import type { BlockerConfig } from "../types";
+
+// import { getBlockerConfig } from "../lib/storage";
+
 interface BlockedShort {
   element: HTMLElement;
   unblockTime: number;
   observer?: IntersectionObserver;
 }
-
-interface ShortsBlockerConfig {
-  blockDuration: number; // Duration in milliseconds
-  autoPlayAfterBlock: boolean; // Whether to auto-play video after block ends
-}
-
 class YouTubeShortsBlocker {
   private blockedShorts: Map<HTMLElement, BlockedShort> = new Map();
-  private config: ShortsBlockerConfig;
+  private config: BlockerConfig;
   private observeDebounceTimer: number | null = null;
   private lastScrollTime: number = 0;
   private scrollCooldown: number = 1000; // Minimum time between scroll detections
   private currentBlockTimeout: number | null = null;
   private currentVideo: HTMLVideoElement | null = null;
 
-  constructor(config?: Partial<ShortsBlockerConfig>) {
-    this.config = {
-      blockDuration: 5000, // 5 seconds default
-      autoPlayAfterBlock: false, // Don't auto-play by default
-      ...config,
-    };
+  constructor(config: BlockerConfig) {
+    this.config = config;
     this.init();
+    console.log({ config });
   }
 
   private init(): void {
@@ -193,7 +189,7 @@ class YouTubeShortsBlocker {
       return;
     }
 
-    const unblockTime = Date.now() + this.config.blockDuration;
+    const unblockTime = Date.now() + this.config.blockDuration * 1000;
 
     // Add to blocked list
     this.blockedShorts.set(container, {
@@ -306,7 +302,7 @@ class YouTubeShortsBlocker {
         // Small delay to ensure all event listeners are cleaned up
         setTimeout(attemptPlay, 100);
       }
-    }, this.config.blockDuration);
+    }, this.config.blockDuration * 1000);
 
     // Add visual indicator (optional)
     this.addBlockIndicator(container, unblockTime);
@@ -395,10 +391,6 @@ class YouTubeShortsBlocker {
 let shortsBlocker: YouTubeShortsBlocker | null = null;
 
 // Configuration - You can modify these settings
-const config: Partial<ShortsBlockerConfig> = {
-  blockDuration: 5000, // 5 seconds in milliseconds
-  autoPlayAfterBlock: true, // Set to true if you want videos to auto-play after the block
-};
 
 // Helper function to check if we're on YouTube Shorts
 const isOnShorts = (): boolean => {
@@ -407,62 +399,55 @@ const isOnShorts = (): boolean => {
     (window.location.pathname.includes("/shorts/") || window.location.pathname === "/shorts")
   );
 };
+(async () => {
+  // Handle navigation changes (YouTube is an SPA)
+  let lastUrl = window.location.href;
+  // const config = await getBlockerConfig("shorts");
 
-// Start blocking when on YouTube Shorts
-if (isOnShorts()) {
-  shortsBlocker = new YouTubeShortsBlocker(config);
-}
+  const config: BlockerConfig = await getBlockerConfig("shorts");
 
-// Example: Update configuration dynamically
-// This can be called from your extension's popup or options page
-(window as any).updateShortsBlockerConfig = (newConfig: Partial<ShortsBlockerConfig>) => {
-  if (shortsBlocker) {
-    shortsBlocker.destroy();
+  if (isOnShorts()) {
+    shortsBlocker = new YouTubeShortsBlocker(config);
   }
-  shortsBlocker = new YouTubeShortsBlocker({ ...config, ...newConfig });
-  console.log("[YouTube Shorts Blocker] Configuration updated:", newConfig);
-};
+  const navigationObserver = new MutationObserver(() => {
+    const currentUrl = window.location.href;
+    if (currentUrl !== lastUrl) {
+      lastUrl = currentUrl;
 
-// Handle navigation changes (YouTube is an SPA)
-let lastUrl = window.location.href;
-const navigationObserver = new MutationObserver(() => {
-  const currentUrl = window.location.href;
-  if (currentUrl !== lastUrl) {
-    lastUrl = currentUrl;
+      // Destroy existing blocker
+      if (shortsBlocker) {
+        shortsBlocker.destroy();
+        shortsBlocker = null;
+      }
 
-    // Destroy existing blocker
+      // Reinitialize if navigating to shorts
+      if (isOnShorts()) {
+        setTimeout(() => {
+          shortsBlocker = new YouTubeShortsBlocker(config);
+        }, 500); // Small delay to let YouTube load
+      }
+    }
+  });
+
+  // Wait for body to exist before observing
+  const observeNavigation = () => {
+    if (document.body) {
+      navigationObserver.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    } else {
+      // Body doesn't exist yet, wait for it
+      setTimeout(observeNavigation, 100);
+    }
+  };
+
+  observeNavigation();
+
+  // Cleanup on page unload
+  window.addEventListener("beforeunload", () => {
     if (shortsBlocker) {
       shortsBlocker.destroy();
-      shortsBlocker = null;
     }
-
-    // Reinitialize if navigating to shorts
-    if (isOnShorts()) {
-      setTimeout(() => {
-        shortsBlocker = new YouTubeShortsBlocker(config);
-      }, 500); // Small delay to let YouTube load
-    }
-  }
-});
-
-// Wait for body to exist before observing
-const observeNavigation = () => {
-  if (document.body) {
-    navigationObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-    });
-  } else {
-    // Body doesn't exist yet, wait for it
-    setTimeout(observeNavigation, 100);
-  }
-};
-
-observeNavigation();
-
-// Cleanup on page unload
-window.addEventListener("beforeunload", () => {
-  if (shortsBlocker) {
-    shortsBlocker.destroy();
-  }
-});
+  });
+})();
