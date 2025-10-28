@@ -7,6 +7,7 @@
     "default_popup": "src/popupPage/index.html",
     "default_icon": "assets/icon.png"
   },
+  "options_page": "src/optionsPage/index.html",
   "permissions": ["tabs", "identity", "identity.email", "storage"],
   "host_permissions": [
     "https://*.chromiumapp.org/*",
@@ -36,6 +37,11 @@
     {
       "matches": ["https://www.instagram.com/*"],
       "js": ["content-scripts/instagram.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.tiktok.com/*"],
+      "js": ["content-scripts/tiktok.js"],
       "run_at": "document_start"
     }
   ]

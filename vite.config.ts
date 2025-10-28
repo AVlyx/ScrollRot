@@ -11,6 +11,7 @@ export default defineConfig({
         options: resolve(__dirname, "src/optionsPage/index.html"),
         instagram: resolve(__dirname, "src/content-scripts/instagram.ts"),
         youtube: resolve(__dirname, "src/content-scripts/youtube.ts"),
+        tiktok: resolve(__dirname, "src/content-scripts/tiktok.ts"),
       },
       output: {
         entryFileNames: (chunkInfo) => {

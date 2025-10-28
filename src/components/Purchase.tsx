@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { collection, addDoc, onSnapshot, doc } from "firebase/firestore";
 import { db } from "../config/firebase-init";
 
@@ -10,7 +10,7 @@ interface PurchaseProps {
 
 type PurchaseStage = "idle" | "processing" | "ready" | "error";
 
-const Purchase = ({ user, priceId, mode }: PurchaseProps) => {
+const Purchase: React.FC<PurchaseProps> = ({ user, priceId, mode }: PurchaseProps) => {
   const [stage, setStage] = useState<PurchaseStage>("idle");
   const [error, setError] = useState<string | null>(null);
   const [sessionUrl, setSessionUrl] = useState<string | null>(null);
