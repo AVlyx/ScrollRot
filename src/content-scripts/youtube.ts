@@ -1,8 +1,17 @@
 // YouTube Shorts Content Script
 // Blocks video playback for 5 seconds after scrolling to a new short
 
-import { getBlockerConfig } from "@/lib/storage";
+import {
+  blockerConfigOnChange,
+  getBlockerConfig,
+  getNumberWatchedShortVids,
+  setNumberWatchedShortVids,
+} from "@/lib/storage";
 import type { BlockerConfig } from "@/types";
+
+//GLOBAL VARIABLES
+let CONFIG: BlockerConfig;
+let shortsBlocker: YouTubeShortsBlocker | null = null;
 
 function isOnShorts(): boolean {
   return (
@@ -11,19 +20,21 @@ function isOnShorts(): boolean {
   );
 }
 
-interface BlockedShort {
-  element: HTMLElement;
-  unblockTime: number;
-  observer?: IntersectionObserver;
-}
 class YouTubeShortsBlocker {
-  private blockedShorts: Map<HTMLElement, BlockedShort> = new Map();
   private config: BlockerConfig;
   private observeDebounceTimer: number | null = null;
   private lastScrollTime: number = 0;
   private scrollCooldown: number = 1000; // Minimum time between scroll detections
   private currentBlockTimeout: number | null = null;
-  private currentVideo: HTMLVideoElement | null = null;
+  private currentVideoSrc: string = "";
+  private shortsWatchedCount: number = 0;
+  private counterElement: HTMLDivElement | null = null;
+  private scrollHandler: ((e: Event) => void) | null = null;
+  private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+  private touchstartHandler: ((e: TouchEvent) => void) | null = null;
+  private touchendHandler: ((e: TouchEvent) => void) | null = null;
+  private clickHandler: ((e: MouseEvent) => void) | null = null;
+  private touchStartY: number = 0;
 
   constructor(config: BlockerConfig) {
     this.config = config;
@@ -31,7 +42,7 @@ class YouTubeShortsBlocker {
     console.log({ config });
   }
 
-  private init(): void {
+  private async init(): Promise<void> {
     console.log("[YouTube Shorts Blocker] Initializing...");
 
     // Wait for DOM to be ready
@@ -40,20 +51,83 @@ class YouTubeShortsBlocker {
     } else {
       this.start();
     }
+
+    this.shortsWatchedCount = await getNumberWatchedShortVids("shorts");
   }
 
   private start(): void {
+    // Create counter display
+    this.createCounterDisplay();
+
     // Listen for scroll events on the shorts container
     this.listenForScrollEvents();
 
     console.log("[YouTube Shorts Blocker] Started successfully");
   }
 
+  private createCounterDisplay(): void {
+    // Create the counter element
+    this.counterElement = document.createElement("div");
+    this.counterElement.className = "shorts-counter-display";
+    this.counterElement.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-family: Roboto, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    `;
+
+    const icon = document.createElement("span");
+    icon.textContent = "🎬";
+    icon.style.fontSize = "20px";
+
+    const countText = document.createElement("span");
+    countText.className = "shorts-counter-text";
+    countText.textContent = `Shorts: ${this.shortsWatchedCount}`;
+
+    this.counterElement.appendChild(icon);
+    this.counterElement.appendChild(countText);
+
+    // Add to the page
+    document.body.appendChild(this.counterElement);
+
+    console.log("[YouTube Shorts Blocker] Counter display created");
+  }
+
+  private updateCounterDisplay(): void {
+    if (this.counterElement) {
+      const countText = this.counterElement.querySelector(".shorts-counter-text");
+      if (countText) {
+        countText.textContent = `Shorts: ${this.shortsWatchedCount}`;
+
+        // Add a subtle animation on update
+        this.counterElement.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          if (this.counterElement) {
+            this.counterElement.style.transform = "scale(1)";
+          }
+        }, 200);
+      }
+    }
+  }
+
   private listenForScrollEvents(): void {
     console.log("[YouTube Shorts Blocker] Setting up scroll detection...");
 
-    // Listen for scroll events on the document
-    const handleScroll = (_: Event) => {
+    // Create the scroll handler
+    this.scrollHandler = (_: Event) => {
       const now = Date.now();
 
       // Check if enough time has passed since last scroll
@@ -71,62 +145,53 @@ class YouTubeShortsBlocker {
     };
 
     // Listen for wheel events (mouse scroll)
-    window.addEventListener("wheel", handleScroll, { passive: true });
+    window.addEventListener("wheel", this.scrollHandler, { passive: true });
 
     // Listen for keyboard navigation (arrow keys)
-    window.addEventListener("keydown", (e: KeyboardEvent) => {
+    this.keydownHandler = (e: KeyboardEvent) => {
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-        handleScroll(e);
+        this.scrollHandler!(e);
       }
-    });
+    };
+    window.addEventListener("keydown", this.keydownHandler);
 
     // Listen for touch events (mobile swipe)
-    let touchStartY = 0;
-    window.addEventListener(
-      "touchstart",
-      (e: TouchEvent) => {
-        touchStartY = e.touches[0].clientY;
-      },
-      { passive: true }
-    );
+    this.touchstartHandler = (e: TouchEvent) => {
+      this.touchStartY = e.touches[0].clientY;
+    };
+    window.addEventListener("touchstart", this.touchstartHandler, { passive: true });
 
-    window.addEventListener(
-      "touchend",
-      (e: TouchEvent) => {
-        const touchEndY = e.changedTouches[0].clientY;
-        const diff = Math.abs(touchStartY - touchEndY);
+    this.touchendHandler = (e: TouchEvent) => {
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = Math.abs(this.touchStartY - touchEndY);
 
-        // Only trigger if swipe was significant (more than 50px)
-        if (diff > 50) {
-          handleScroll(e);
-        }
-      },
-      { passive: true }
-    );
+      // Only trigger if swipe was significant (more than 50px)
+      if (diff > 50) {
+        this.scrollHandler!(e);
+      }
+    };
+    window.addEventListener("touchend", this.touchendHandler, { passive: true });
 
     // Listen for clicks on next/previous video buttons
-    document.addEventListener(
-      "click",
-      (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
+    this.clickHandler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
 
-        // Check if the click was on a next/previous button or its child elements
-        const button = target.closest(
-          'button[aria-label="Next video"], button[aria-label="Previous video"]'
-        );
+      // Check if the click was on a next/previous button or its child elements
+      const button = target.closest(
+        'button[aria-label="Next video"], button[aria-label="Previous video"]'
+      );
 
-        if (button) {
-          console.log("[YouTube Shorts Blocker] Navigation button clicked, blocking next video...");
-          handleScroll(e);
-        }
-      },
-      { capture: true }
-    );
+      if (button) {
+        console.log("[YouTube Shorts Blocker] Navigation button clicked, blocking next video...");
+        this.scrollHandler!(e);
+      }
+    };
+    document.addEventListener("click", this.clickHandler, { capture: true });
 
     console.log("[YouTube Shorts Blocker] Scroll detection active");
   }
 
-  private blockCurrentVideo(): void {
+  private async blockCurrentVideo(): Promise<void> {
     // Find the currently visible video
     const videos = document.querySelectorAll("video");
     let currentVideo: HTMLVideoElement | null = null;
@@ -150,17 +215,30 @@ class YouTubeShortsBlocker {
       return;
     }
 
-    // Check if this video was just processed
-    if (this.currentVideo === currentVideo) {
-      console.log("[YouTube Shorts Blocker] Same video, skipping block");
+    // Get the video source to track which video this is
+    const videoElement = currentVideo as HTMLVideoElement;
+    const videoSrc = videoElement.src || videoElement.currentSrc || "";
+
+    // Check if this is the same video we just processed
+    if (this.currentVideoSrc === videoSrc && videoSrc !== "") {
+      console.log("[YouTube Shorts Blocker] Same video (by src), skipping block");
       return;
     }
 
-    this.currentVideo = currentVideo;
+    this.currentVideoSrc = videoSrc;
+    console.log(
+      "[YouTube Shorts Blocker] New video detected, src:",
+      videoSrc.substring(0, 50) + "..."
+    );
+
+    // Increment counter and update display
+    this.shortsWatchedCount++;
+    await setNumberWatchedShortVids("shorts", this.shortsWatchedCount);
+    this.updateCounterDisplay();
 
     // If we don't have a container, use the video's parent
     if (!currentContainer) {
-      let parent: HTMLElement | null = (currentVideo as HTMLVideoElement).parentElement;
+      let parent: HTMLElement | null = videoElement.parentElement;
       let depth = 0;
       while (parent && depth < 10) {
         if (parent.offsetHeight > 400) {
@@ -178,7 +256,7 @@ class YouTubeShortsBlocker {
     }
 
     console.log("[YouTube Shorts Blocker] Found current video, blocking now");
-    this.blockVideo(currentVideo, currentContainer);
+    this.blockVideo(videoElement, currentContainer);
   }
 
   private blockVideo(video: HTMLVideoElement, container: HTMLElement): void {
@@ -188,19 +266,7 @@ class YouTubeShortsBlocker {
       this.currentBlockTimeout = null;
     }
 
-    // Check if already blocked (skip duplicate blocks)
-    if (this.blockedShorts.has(container)) {
-      console.log("[YouTube Shorts Blocker] Container already blocked, skipping");
-      return;
-    }
-
     const unblockTime = Date.now() + this.config.blockDuration * 1000;
-
-    // Add to blocked list
-    this.blockedShorts.set(container, {
-      element: container,
-      unblockTime: unblockTime,
-    });
 
     console.log(
       "[YouTube Shorts Blocker] Blocking video for",
@@ -243,7 +309,6 @@ class YouTubeShortsBlocker {
       video.removeEventListener("play", preventPlay, { capture: true });
       video.removeEventListener("playing", preventPlay, { capture: true });
       video.removeEventListener("loadeddata", preventAutoPlay, { capture: true });
-      this.blockedShorts.delete(container);
       this.currentBlockTimeout = null;
       console.log("[YouTube Shorts Blocker] Unblocked short, playback allowed");
 
@@ -378,6 +443,33 @@ class YouTubeShortsBlocker {
   }
 
   public destroy(): void {
+    // Remove all event listeners
+    if (this.scrollHandler) {
+      window.removeEventListener("wheel", this.scrollHandler);
+      this.scrollHandler = null;
+    }
+
+    if (this.keydownHandler) {
+      window.removeEventListener("keydown", this.keydownHandler);
+      this.keydownHandler = null;
+    }
+
+    if (this.touchstartHandler) {
+      window.removeEventListener("touchstart", this.touchstartHandler);
+      this.touchstartHandler = null;
+    }
+
+    if (this.touchendHandler) {
+      window.removeEventListener("touchend", this.touchendHandler);
+      this.touchendHandler = null;
+    }
+
+    if (this.clickHandler) {
+      document.removeEventListener("click", this.clickHandler, { capture: true });
+      this.clickHandler = null;
+    }
+
+    // Clear timers
     if (this.observeDebounceTimer !== null) {
       clearTimeout(this.observeDebounceTimer);
     }
@@ -386,45 +478,41 @@ class YouTubeShortsBlocker {
       clearTimeout(this.currentBlockTimeout);
     }
 
-    this.blockedShorts.clear();
-    this.currentVideo = null;
+    // Remove the counter display
+    if (this.counterElement && this.counterElement.parentElement) {
+      this.counterElement.remove();
+    }
+
+    this.currentVideoSrc = "";
     console.log("[YouTube Shorts Blocker] Destroyed");
   }
 }
 
 // Initialize the blocker
-let shortsBlocker: YouTubeShortsBlocker | null = null;
-
-// Configuration - You can modify these settings
 
 (async () => {
+  CONFIG = await getBlockerConfig("shorts");
+
   // Handle navigation changes (YouTube is an SPA)
-  let lastUrl = window.location.href;
-  // const config = await getBlockerConfig("shorts");
-
-  const config: BlockerConfig = await getBlockerConfig("shorts");
-
-  if (isOnShorts()) {
-    shortsBlocker = new YouTubeShortsBlocker(config);
-  }
+  let lastOnShorts: boolean = false;
   const navigationObserver = new MutationObserver(() => {
-    const currentUrl = window.location.href;
-    if (currentUrl !== lastUrl) {
-      lastUrl = currentUrl;
-
-      // Destroy existing blocker
+    if (!isOnShorts()) {
+      lastOnShorts = false;
       if (shortsBlocker) {
         shortsBlocker.destroy();
         shortsBlocker = null;
       }
-
-      // Reinitialize if navigating to shorts
-      if (isOnShorts()) {
-        setTimeout(() => {
-          shortsBlocker = new YouTubeShortsBlocker(config);
-        }, 500); // Small delay to let YouTube load
-      }
+      return;
     }
+    if (lastOnShorts) {
+      return;
+    }
+    lastOnShorts = true;
+    // Only create if we arrive on a shorts page
+    setTimeout(() => {
+      shortsBlocker = new YouTubeShortsBlocker(CONFIG);
+    }, 500); // Small delay to let YouTube load
+    console.log("NEW YouTubeShortsBlocker CREATED");
   });
 
   // Wait for body to exist before observing
@@ -449,3 +537,16 @@ let shortsBlocker: YouTubeShortsBlocker | null = null;
     }
   });
 })();
+
+// Subscribe to config changes
+const unsubscribe = blockerConfigOnChange("shorts", (newConfig) => {
+  CONFIG = newConfig;
+  if (isOnShorts() && shortsBlocker) {
+    shortsBlocker.destroy();
+    shortsBlocker = new YouTubeShortsBlocker(CONFIG);
+  }
+  console.log("BLOCKER CONFIG CHANGE DETECTED. LET'S GO");
+});
+
+// Cleanup when needed
+window.addEventListener("beforeunload", unsubscribe);
