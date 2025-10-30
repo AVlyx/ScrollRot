@@ -6,4 +6,10 @@ export interface BlockerConfig {
   blockDuration: number;
 }
 
+export const blockerConfigDefault: BlockerConfig = {
+  enabled: true,
+  autoPlayAfterBlock: true,
+  blockDuration: 5000,
+};
+
 export type AllBlockerConfigs = Record<Platform, BlockerConfig>;

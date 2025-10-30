@@ -1,12 +1,28 @@
 // Instagram Reels Content Script
 // Blocks video playback for 5 seconds after scrolling to a new reel
-import { getBlockerConfig } from "@/lib/storage";
-import type { BlockerConfig } from "@/types";
+import {
+  blockerConfigOnChange,
+  getBlockerConfig,
+  getNumberWatchedShortVids,
+  setNumberWatchedShortVids,
+} from "@/lib/storage";
+import { blockerConfigDefault, type BlockerConfig } from "@/types";
+
+//GLOBAL VARIABLES
+let CONFIG: BlockerConfig = blockerConfigDefault;
+let REELSBLOCKER: InstagramReelsBlocker | null = null;
 
 interface BlockedReel {
   element: HTMLElement;
   unblockTime: number;
   observer?: IntersectionObserver;
+}
+
+function isOnReels(): boolean {
+  return (
+    window.location.hostname.includes("instagram.com") &&
+    window.location.pathname.includes("/reels/")
+  );
 }
 
 class InstagramReelsBlocker {
@@ -17,13 +33,15 @@ class InstagramReelsBlocker {
   private mainObserver: MutationObserver | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
   private observeDebounceTimer: number | null = null;
+  private reelsWatchedCount: number = 0;
+  private counterElement: HTMLDivElement | null = null;
 
   constructor(config: BlockerConfig) {
     this.config = config;
     this.init();
   }
 
-  private init(): void {
+  private async init(): Promise<void> {
     console.log("[Instagram Reels Blocker] Initializing...");
 
     // Wait for DOM to be ready
@@ -32,19 +50,21 @@ class InstagramReelsBlocker {
     } else {
       this.start();
     }
+    this.reelsWatchedCount = await getNumberWatchedShortVids("reels");
   }
 
   private start(): void {
     // Create intersection observer to detect when reels come into view
     this.createIntersectionObserver();
 
+    // Create counter display
+    this.createCounterDisplay();
+
     // Observe existing reels once
     this.observeExistingReels();
 
     // Watch for new reels being added to the DOM
     this.watchForNewReels();
-
-    console.log("[Instagram Reels Blocker] Started successfully");
   }
 
   private createIntersectionObserver(): void {
@@ -62,6 +82,64 @@ class InstagramReelsBlocker {
         rootMargin: "0px",
       }
     );
+  }
+
+  private createCounterDisplay(): void {
+    // Create the counter element
+    this.counterElement = document.createElement("div");
+    this.counterElement.className = "reels-counter-display";
+    this.counterElement.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    `;
+
+    const icon = document.createElement("span");
+    icon.textContent = "🎬";
+    icon.style.fontSize = "20px";
+
+    const countText = document.createElement("span");
+    countText.className = "reels-counter-text";
+    countText.textContent = `Reels: ${this.reelsWatchedCount}`;
+
+    this.counterElement.appendChild(icon);
+    this.counterElement.appendChild(countText);
+
+    // Add to the page
+    document.body.appendChild(this.counterElement);
+
+    console.log("[Instagram Reels Blocker] Counter display created");
+  }
+
+  private updateCounterDisplay(): void {
+    if (this.counterElement) {
+      const countText = this.counterElement.querySelector(".reels-counter-text");
+      if (countText) {
+        countText.textContent = `Reels: ${this.reelsWatchedCount}`;
+
+        // Add a subtle animation on update
+        this.counterElement.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          if (this.counterElement) {
+            this.counterElement.style.transform = "scale(1)";
+          }
+        }, 200);
+      }
+    }
   }
 
   private observeExistingReels(): void {
@@ -219,7 +297,17 @@ class InstagramReelsBlocker {
     }
 
     this.processedVideos.add(video);
-    console.log("[Instagram Reels Blocker] New reel in view, blocking for 5s");
+
+    // Increment the counter for each new reel viewed
+    this.reelsWatchedCount++;
+    setNumberWatchedShortVids("reels", this.reelsWatchedCount);
+    this.updateCounterDisplay();
+
+    console.log(
+      "[Instagram Reels Blocker] New reel in view, blocking for 5s (Total reels: " +
+        this.reelsWatchedCount +
+        ")"
+    );
 
     // Block the video
     this.blockVideo(video, reelContainer);
@@ -415,6 +503,11 @@ class InstagramReelsBlocker {
       clearTimeout(this.observeDebounceTimer);
     }
 
+    // Remove the counter display
+    if (this.counterElement && this.counterElement.parentElement) {
+      this.counterElement.remove();
+    }
+
     this.blockedReels.clear();
     this.observedContainers.clear();
     console.log("[Instagram Reels Blocker] Destroyed");
@@ -422,47 +515,48 @@ class InstagramReelsBlocker {
 }
 
 // Initialize the blocker
-let reelsBlocker: InstagramReelsBlocker | null = null;
+
 (async () => {
   // Configuration - You can modify these settings
-  const config: BlockerConfig = await getBlockerConfig("reels");
+  CONFIG = await getBlockerConfig("reels");
 
   // Start blocking when on Instagram Reels
-  if (window.location.hostname.includes("instagram.com")) {
-    reelsBlocker = new InstagramReelsBlocker(config);
+  if (isOnReels() && !REELSBLOCKER) {
+    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
   }
 
   // Example: Update configuration dynamically
   // This can be called from your extension's popup or options page
   (window as any).updateBlockerConfig = (newConfig: BlockerConfig) => {
-    if (reelsBlocker) {
-      reelsBlocker.destroy();
+    if (REELSBLOCKER) {
+      REELSBLOCKER.destroy();
     }
-    reelsBlocker = new InstagramReelsBlocker({ ...config, ...newConfig });
+    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
     console.log("[Instagram Reels Blocker] Configuration updated:", newConfig);
   };
 
   // Handle navigation changes (for SPAs like Instagram)
-  let lastUrl = window.location.href;
+  let lastOnReels: boolean = false;
   const navigationObserver = new MutationObserver(() => {
-    const currentUrl = window.location.href;
-    if (currentUrl !== lastUrl) {
-      lastUrl = currentUrl;
-
-      // Reinitialize if navigating to/from reels
-      if (reelsBlocker) {
-        reelsBlocker.destroy();
+    if (!isOnReels()) {
+      lastOnReels = false;
+      if (REELSBLOCKER) {
+        REELSBLOCKER.destroy();
       }
-
-      if (window.location.hostname.includes("instagram.com")) {
-        setTimeout(() => {
-          reelsBlocker = new InstagramReelsBlocker(config);
-        }, 500); // Small delay to let Instagram load
-      }
+      return;
     }
+    if (lastOnReels) {
+      return;
+    }
+    lastOnReels = true;
+    // Only create if we arrive on a reels page
+    setTimeout(() => {
+      REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
+    }, 500); // Small delay to let Instagram load
+    console.log("NEW InstagramReelsBlocker CREATED");
   });
 
-  // Wait for body to exist before observing
+  // Wait for body to exist before starting navigationObserver
   const observeNavigation = () => {
     if (document.body) {
       navigationObserver.observe(document.body, {
@@ -480,7 +574,20 @@ let reelsBlocker: InstagramReelsBlocker | null = null;
 
 // Cleanup on page unload
 window.addEventListener("beforeunload", () => {
-  if (reelsBlocker) {
-    reelsBlocker.destroy();
+  if (REELSBLOCKER) {
+    REELSBLOCKER.destroy();
   }
 });
+
+// Subscribe
+const unsubscribe = blockerConfigOnChange("reels", (newConfig) => {
+  CONFIG = newConfig;
+  if (isOnReels() && REELSBLOCKER) {
+    REELSBLOCKER.destroy();
+    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
+  }
+  console.log("BLCOKER CONFIG CHANGE DETECTED. LEST GO");
+});
+
+// Cleanup when needed
+window.addEventListener("beforeunload", unsubscribe);

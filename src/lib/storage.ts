@@ -1,4 +1,10 @@
-import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
+import isEqual from "fast-deep-equal";
+import {
+  blockerConfigDefault,
+  type AllBlockerConfigs,
+  type BlockerConfig,
+  type Platform,
+} from "@/types";
 
 export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
   try {
@@ -17,15 +23,63 @@ export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
 export async function getBlockerConfig(platform: Platform): Promise<BlockerConfig> {
   const allconfig: AllBlockerConfigs | null = await getAllBlockerConfig();
   if (!allconfig) {
-    return {
-      enabled: true,
-      autoPlayAfterBlock: true,
-      blockDuration: 5000,
-    };
+    return blockerConfigDefault;
   }
   return allconfig[platform];
 }
 
 export async function setAllBlockerConfig(allConfig: AllBlockerConfigs) {
   await chrome.storage.local.set({ blockerConfigs: allConfig });
+}
+
+export function blockerConfigOnChange(
+  platform: Platform,
+  callback: (config: BlockerConfig) => void
+): () => void {
+  const callbackGuard = (
+    changes: { [key: string]: chrome.storage.StorageChange },
+    areaName: string
+  ) => {
+    if (areaName !== "local" || !changes.blockerConfigs) {
+      return;
+    }
+    const { oldValue, newValue } = changes.blockerConfigs as {
+      oldValue?: AllBlockerConfigs;
+      newValue?: AllBlockerConfigs;
+    };
+    const newConfig = newValue?.[platform];
+    if (!newConfig) {
+      return;
+    }
+    if (!oldValue) {
+      return callback(newConfig);
+    }
+    const oldConfig = oldValue[platform];
+    if (isEqual(newConfig, oldConfig)) {
+      return;
+    }
+    callback(newConfig);
+  };
+
+  chrome.storage.onChanged.addListener(callbackGuard);
+
+  return () => chrome.storage.onChanged.removeListener(callbackGuard);
+}
+
+export async function setNumberWatchedShortVids(platform: Platform, watched: number) {
+  await chrome.storage.local.set({ [`nwatched${platform}`]: watched });
+}
+
+export async function getNumberWatchedShortVids(platform: Platform): Promise<number> {
+  try {
+    const data = await chrome.storage.local.get(`nwatched${platform}`);
+    const result = (data[`nwatched${platform}`] ?? null) as number | null;
+    if (result == null) {
+      return 0;
+    }
+    return result;
+  } catch (err) {
+    console.error("Failed to load configs:", err);
+    return 0;
+  }
 }

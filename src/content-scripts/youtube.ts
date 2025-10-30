@@ -4,7 +4,12 @@
 import { getBlockerConfig } from "@/lib/storage";
 import type { BlockerConfig } from "@/types";
 
-// import { getBlockerConfig } from "@/lib/storage";
+function isOnShorts(): boolean {
+  return (
+    window.location.hostname.includes("youtube.com") &&
+    window.location.pathname.includes("/shorts/")
+  );
+}
 
 interface BlockedShort {
   element: HTMLElement;
@@ -392,13 +397,6 @@ let shortsBlocker: YouTubeShortsBlocker | null = null;
 
 // Configuration - You can modify these settings
 
-// Helper function to check if we're on YouTube Shorts
-const isOnShorts = (): boolean => {
-  return (
-    window.location.hostname.includes("youtube.com") &&
-    (window.location.pathname.includes("/shorts/") || window.location.pathname === "/shorts")
-  );
-};
 (async () => {
   // Handle navigation changes (YouTube is an SPA)
   let lastUrl = window.location.href;
