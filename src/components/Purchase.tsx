@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { collection, addDoc, onSnapshot, doc } from "firebase/firestore";
-import { db } from "../config/firebase-init";
+import { db } from "@/config/firebase-init";
 
 interface PurchaseProps {
   user: { uid: string; email: string | null };

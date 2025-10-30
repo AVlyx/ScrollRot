@@ -1,4 +1,4 @@
-import type { AllBlockerConfigs, BlockerConfig, Platform } from "../types";
+import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
 
 export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
   try {

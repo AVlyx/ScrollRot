@@ -1,10 +1,10 @@
 // YouTube Shorts Content Script
 // Blocks video playback for 5 seconds after scrolling to a new short
 
-import { getBlockerConfig } from "../lib/storage";
-import type { BlockerConfig } from "../types";
+import { getBlockerConfig } from "@/lib/storage";
+import type { BlockerConfig } from "@/types";
 
-// import { getBlockerConfig } from "../lib/storage";
+// import { getBlockerConfig } from "@/lib/storage";
 
 interface BlockedShort {
   element: HTMLElement;

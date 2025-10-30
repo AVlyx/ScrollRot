@@ -1,8 +1,8 @@
-import { db } from "../config/firebase-init";
+import { db } from "@/config/firebase-init";
 import {
   LIFETIME_DEAL_PRODUCT_ID,
   // MEMBERSHIP_PRICE_ID
-} from "../config/stripe_keys";
+} from "@/config/stripe_keys";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { type User } from "firebase/auth/web-extension";
 import { getAuthenticatedUser } from "./auth";

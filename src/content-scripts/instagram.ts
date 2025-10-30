@@ -1,7 +1,7 @@
 // Instagram Reels Content Script
 // Blocks video playback for 5 seconds after scrolling to a new reel
-import { getBlockerConfig } from "../lib/storage";
-import type { BlockerConfig } from "../types";
+import { getBlockerConfig } from "@/lib/storage";
+import type { BlockerConfig } from "@/types";
 
 interface BlockedReel {
   element: HTMLElement;

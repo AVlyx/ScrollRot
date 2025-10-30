@@ -1,4 +1,4 @@
-// import { getAuthToken, authenticateUser } from "../lib/auth-stripePayments";
+// import { getAuthToken, authenticateUser } from "@/lib/auth-stripePayments";
 // import type { User } from "firebase/auth/web-extension";
 
 // // Define the message interface

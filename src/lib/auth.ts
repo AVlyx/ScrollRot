@@ -1,4 +1,4 @@
-import { auth } from "../config/firebase-init";
+import { auth } from "@/config/firebase-init";
 import {
   GoogleAuthProvider,
   signInWithCredential,
@@ -23,6 +23,9 @@ export async function authenticateUser(token: string): Promise<User> {
   //   console.log({ ocredential });
   const userCred: UserCredential = await signInWithCredential(auth, ocredential);
   //   console.log({ userCred });
+  if (!userCred.user.email) {
+    throw new Error("Could authenticate user");
+  }
   return userCred.user;
 }
 

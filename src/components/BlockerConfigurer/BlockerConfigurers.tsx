@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
-import type { AllBlockerConfigs, BlockerConfig, Platform } from "../types";
-import { getAllBlockerConfig, setAllBlockerConfig } from "../lib/storage";
+import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
+import { getAllBlockerConfig, setAllBlockerConfig } from "@/lib/storage";
+import styles from "./BlockerConfigurers.module.css";
 
 const defaultConfig: BlockerConfig = {
   enabled: false,
@@ -45,25 +46,23 @@ const BlockerConfigurers: React.FC = () => {
   };
 
   return (
-    <div className="p-4 w-72 text-sm space-y-5">
-      <h1 className="text-lg font-semibold text-center mb-2">Video Blocker Settings</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Video Blocker Settings</h1>
 
       {/* Render all platforms */}
       {(Object.keys(configs) as Platform[]).map((platform) => (
-        <div key={platform}>
-          <h2 className="font-semibold mb-2 border-b pb-1 text-gray-700 capitalize">
-            {platformLabels[platform]}
-          </h2>
-          <BlockerConfigurer
-            config={configs[platform]}
-            onChange={(partial) => updateConfig(platform, partial)}
-          />
+        <div key={platform} className={styles.platformSection}>
+          <h2 className={styles.platformTitle}>{platformLabels[platform]}</h2>
+          <div className={styles.platformContent}>
+            <BlockerConfigurer
+              config={configs[platform]}
+              onChange={(partial) => updateConfig(platform, partial)}
+            />
+          </div>
         </div>
       ))}
 
-      <p className="text-xs text-gray-500 text-center pt-2">
-        Settings auto-save for each platform.
-      </p>
+      <p className={styles.footer}>Settings auto-save for each platform.</p>
     </div>
   );
 };

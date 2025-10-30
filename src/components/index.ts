@@ -1,4 +1,5 @@
-export { default as BlockerConfigurer } from "./BlockerConfigurer";
-export { default as BlockerConfigurers } from "./BlockerConfigurers";
+import { BlockerConfigurers } from "./BlockerConfigurer";
+
+export { BlockerConfigurers };
 export { default as OpenSettingsButton } from "./OpenSettingsButton";
 export { default as Purchase } from "./Purchase";

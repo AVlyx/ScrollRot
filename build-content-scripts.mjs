@@ -16,7 +16,11 @@ async function buildAll() {
     try {
       await build({
         configFile: false,
-
+        resolve: {
+          alias: {
+            "@": resolve(__dirname, "./src"),
+          },
+        },
         build: {
           outDir: "dist/content-scripts",
           emptyOutDir: false, // Don't clear the folder between builds

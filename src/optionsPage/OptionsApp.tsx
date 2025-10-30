@@ -1,10 +1,10 @@
 import React from "react";
-import { BlockerConfigurers } from "../components";
+import { BlockerConfigurers } from "@/components";
 
 const OptionsApp: React.FC = () => {
   return (
     <>
-      <BlockerConfigurers />;
+      <BlockerConfigurers />
     </>
   );
 };

@@ -1,7 +1,7 @@
 // TikTok Content Script
 // Blocks video playback for 5 seconds after scrolling to a new video
-import { getBlockerConfig } from "../lib/storage";
-import type { BlockerConfig } from "../types";
+import { getBlockerConfig } from "@/lib/storage";
+import type { BlockerConfig } from "@/types";
 
 interface BlockedVideo {
   element: HTMLElement;
@@ -463,7 +463,7 @@ class TikTokBlocker {
     };
 
     // Prevent time updates during block (keep at 0)
-    const preventTimeUpdate = (e: Event) => {
+    const preventTimeUpdate = (_: Event) => {
       const timeRemaining = unblockTime - Date.now();
       if (timeRemaining > 0 && video.currentTime > 0.1) {
         console.log(
