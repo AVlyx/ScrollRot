@@ -3,6 +3,7 @@ import { CircularTimer } from "./CircularTimer";
 import type { FocusTimer } from "@/types";
 import { clearFocusTimer, getFocusTimer, setFocusTimer } from "@/lib/storage/focusTimer";
 import { activeTimer } from "@/utils";
+import styles from "./FocusTimerWidget.module.css";
 
 export const FocusTimerWidget: React.FC = () => {
   const timerDuration = 1;
@@ -26,6 +27,7 @@ export const FocusTimerWidget: React.FC = () => {
     setTimer(null);
     clearFocusTimer();
   };
+  
   //The lion does not care about code duplication
   const endTimer = () => {
     setTimer(null);
@@ -34,13 +36,39 @@ export const FocusTimerWidget: React.FC = () => {
 
   if (timer && activeTimer(timer)) {
     return (
-      <>
-        <CircularTimer timer={timer} onComplete={endTimer} />
-        <button onClick={handleEndSession}>End session early WHAT</button>
-      </>
+      <div className={styles.widget}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Focus Session</h1>
+          <p className={styles.subtitle}>Stay focused and productive</p>
+        </div>
+        
+        <div className={styles.timerContainer}>
+          <CircularTimer timer={timer} onComplete={endTimer} />
+        </div>
+        
+        <div className={styles.buttonContainer}>
+          <button className={`${styles.button} ${styles.endButton}`} onClick={handleEndSession}>
+            End Session
+          </button>
+        </div>
+      </div>
     );
   } else {
-    return <button onClick={handleStartTimer}> StartTimer</button>;
+    return (
+      <div className={styles.widget}>
+        <div className={styles.emptyState}>
+          <div className={styles.header}>
+            <div className={styles.icon}>⏱️</div>
+            <h1 className={styles.title}>Focus Timer</h1>
+            <p className={styles.subtitle}>Start a focused work session</p>
+          </div>
+          
+          <button className={`${styles.button} ${styles.startButton}`} onClick={handleStartTimer}>
+            Start Timer
+          </button>
+        </div>
+      </div>
+    );
   }
 };
 

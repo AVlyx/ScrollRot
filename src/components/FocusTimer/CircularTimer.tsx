@@ -49,8 +49,8 @@ export const CircularTimer: React.FC<CircularTimerProps> = ({ timer, onComplete 
     <CircularProgress
       progress={progress}
       timeRemaining={timeRemaining}
-      size={180}
-      strokeWidth={12}
+      size={160}
+      strokeWidth={8}
     />
   );
 };

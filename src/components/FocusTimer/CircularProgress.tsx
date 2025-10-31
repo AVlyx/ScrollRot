@@ -14,8 +14,8 @@ interface CircularProgressProps {
 export const CircularProgress: React.FC<CircularProgressProps> = ({
   progress,
   timeRemaining,
-  size = 200,
-  strokeWidth = 10,
+  size = 160,
+  strokeWidth = 8,
   color = "#3b82f6",
   backgroundColor = "#e5e7eb",
 }) => {

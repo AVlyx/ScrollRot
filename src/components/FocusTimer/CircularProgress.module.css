@@ -1,8 +1,8 @@
 .container {
   position: relative;
   display: inline-flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 }
 
 .svg {
@@ -16,13 +16,16 @@
 .progressCircle {
   fill: none;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.3s ease-out;
+  transition: stroke-dashoffset 0.3s ease;
 }
 
 .centerContent {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
@@ -32,7 +35,15 @@
 }
 
 .percentage {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .percentage {
+    color: #f9fafb;
+  }
 }
