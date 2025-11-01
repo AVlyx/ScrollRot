@@ -9,6 +9,7 @@ interface CircularProgressProps {
   strokeWidth?: number;
   color?: string;
   backgroundColor?: string;
+  isComplete?: boolean;
 }
 
 export const CircularProgress: React.FC<CircularProgressProps> = ({
@@ -18,7 +19,11 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   strokeWidth = 8,
   color = "#3b82f6",
   backgroundColor = "#e5e7eb",
+  isComplete = false,
 }) => {
+  if (isComplete) {
+    progress = 100;
+  }
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
@@ -41,7 +46,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke={isComplete ? "#10b981" : color}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -52,7 +57,11 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
       {/* Center content */}
       <div className={styles.centerContent}>
         <div className={styles.centerText}>
-          <div className={styles.percentage}>{formatTime(timeRemaining)}</div>
+          {isComplete ? (
+            <div className={styles.completeIcon}>✓</div>
+          ) : (
+            <div className={styles.percentage}>{formatTime(timeRemaining)}</div>
+          )}
         </div>
       </div>
     </div>

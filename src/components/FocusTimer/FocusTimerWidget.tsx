@@ -10,13 +10,16 @@ import {
   getFocusTimerConfig,
   defaultFocusTimerConfig,
 } from "@/lib/storage/focusTimer";
-import { activeTimer } from "@/utils";
+import { getFocusDataFromConfig } from "@/utils";
 import styles from "./FocusTimerWidget.module.css";
 
 export const FocusTimerWidget: React.FC = () => {
   const [timer, setTimer] = useState<FocusTimer | null>(null);
   const [config, setConfig] = useState<FocusTimerConfig>(defaultFocusTimerConfig);
   const [showConfig, setShowConfig] = useState(false);
+  const [sessionData, setSessionData] = useState<ReturnType<typeof getFocusDataFromConfig> | null>(
+    null
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,57 +36,45 @@ export const FocusTimerWidget: React.FC = () => {
     loadData();
   }, []);
 
+  // Recalculate session data periodically when timer is active
+  useEffect(() => {
+    if (!timer) {
+      setSessionData(null);
+      return;
+    }
+
+    const updateSessionData = () => {};
+
+    updateSessionData();
+    const interval = window.setInterval(() => {
+      const data = getFocusDataFromConfig(timer, config);
+      setSessionData(data);
+      if (data.isComplete) {
+        window.clearInterval(interval);
+      }
+    }, 100);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [timer, config]);
+
   const handleStartTimer = async () => {
     // Reload config in case it changed
     const latestConfig = (await getFocusTimerConfig()) || config;
 
+    // Calculate total duration of all sessions
+    const totalDuration =
+      latestConfig.focusTime * latestConfig.numberOfFocusSessions +
+      latestConfig.pauseTime * (latestConfig.numberOfFocusSessions - 1);
+
     const newTimer: FocusTimer = {
       startTime: Date.now(),
-      duration: latestConfig.focusTime,
-      type: "focus",
-      currentSession: 1,
-      totalSessions: latestConfig.numberOfFocusSessions,
+      duration: totalDuration,
     };
 
     setTimer(newTimer);
     await setFocusTimer(newTimer);
-  };
-
-  const handleTimerComplete = async () => {
-    if (!timer) return;
-
-    const latestConfig = (await getFocusTimerConfig()) || config;
-
-    // If we just finished a focus session
-    if (timer.type === "focus") {
-      // Start a break (unless it was the last session)
-      if (timer.currentSession < timer.totalSessions) {
-        const breakTimer: FocusTimer = {
-          startTime: Date.now(),
-          duration: latestConfig.pauseTime,
-          type: "break",
-          currentSession: timer.currentSession,
-          totalSessions: timer.totalSessions,
-        };
-        setTimer(breakTimer);
-        await setFocusTimer(breakTimer);
-      } else {
-        // All sessions complete
-        handleEndSession();
-      }
-    } else {
-      // If we just finished a break, start the next focus session
-      const nextSession = timer.currentSession + 1;
-      const focusTimer: FocusTimer = {
-        startTime: Date.now(),
-        duration: latestConfig.focusTime,
-        type: "focus",
-        currentSession: nextSession,
-        totalSessions: timer.totalSessions,
-      };
-      setTimer(focusTimer);
-      await setFocusTimer(focusTimer);
-    }
   };
 
   const handleEndSession = async () => {
@@ -104,7 +95,7 @@ export const FocusTimerWidget: React.FC = () => {
     return <FocusTimerConfigPanel onClose={handleConfigClose} />;
   }
 
-  if (timer && activeTimer(timer)) {
+  if (timer && sessionData) {
     return (
       <div className={styles.widget}>
         <div className={styles.header}>
@@ -112,10 +103,19 @@ export const FocusTimerWidget: React.FC = () => {
           <p className={styles.subtitle}>Stay focused and productive</p>
         </div>
 
-        <SessionProgress timer={timer} />
+        <SessionProgress
+          type={sessionData.type}
+          currentSession={sessionData.currentSession}
+          totalSessions={sessionData.totalSessions}
+          isComplete={sessionData.isComplete}
+        />
 
         <div className={styles.timerContainer}>
-          <CircularTimer timer={timer} onComplete={handleTimerComplete} />
+          <CircularTimer
+            progress={sessionData.progress}
+            timeRemaining={sessionData.timeRemaining}
+            isComplete={sessionData.isComplete}
+          />
         </div>
 
         <div className={styles.buttonContainer}>

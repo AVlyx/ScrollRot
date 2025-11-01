@@ -1,4 +1,4 @@
-import type { FocusTimer } from "@/types";
+import type { FocusSessionData, FocusTimer, FocusTimerConfig } from "@/types";
 
 /**
  * Formats milliseconds into a human-readable time string (HH:MM:SS or MM:SS)
@@ -22,28 +22,47 @@ export function formatTime(milliseconds: number): string {
   return `${pad(minutes)}:${pad(seconds)}`;
 }
 
-/**
- * Calculates the percentage of time elapsed for a FocusTimer
- */
-export function calculateProgress(timer: FocusTimer, currentTime: number = Date.now()): number {
-  console.log(timer.startTime);
-  const start = timer.startTime;
-  const durationMs = timer.duration * 60 * 1000; // Convert minutes to milliseconds
-  const end = start + durationMs;
+// Check if the timer / focus session is ongoing
+// export function activeTimer(focusTimer: FocusTimer, focusTimerConfig: FocusTimerConfig): boolean {
+//   const now = Date.now();
+//   const timeElapsed = now - focusTimer.startTime;
+//   const focusMs = focusTimerConfig.focusTime * 60 * 1000;
+//   const breakMs = focusTimerConfig.pauseTime * 60 * 1000;
+//   const breakAndFocusMs = focusMs + breakMs;
+//   const totalSessions = focusTimerConfig.numberOfFocusSessions;
+//   return timeElapsed < breakAndFocusMs * totalSessions - breakMs;
+// }
 
-  if (currentTime <= start) {
-    return 0;
-  }
+export function getFocusDataFromConfig(
+  focusTimer: FocusTimer,
+  focusTimerConfig: FocusTimerConfig
+): FocusSessionData {
+  const now = Date.now();
+  const timeElapsed = now - focusTimer.startTime;
 
-  if (currentTime >= end) {
-    return 100;
-  }
+  const focusMs = focusTimerConfig.focusTime * 60 * 1000;
+  const breakMs = focusTimerConfig.pauseTime * 60 * 1000;
+  const breakAndFocusMs = focusMs + breakMs;
 
-  const elapsed = currentTime - start;
+  const currentSession = Math.floor(timeElapsed / breakAndFocusMs) + 1;
+  const currSessionElapsed = timeElapsed % breakAndFocusMs;
 
-  return (elapsed / durationMs) * 100;
-}
+  const type: "focus" | "break" = currSessionElapsed < focusMs ? "focus" : "break";
+  const currSessionTypeElapsed =
+    currSessionElapsed < focusMs ? currSessionElapsed : currSessionElapsed - focusMs;
 
-export function activeTimer(timer: FocusTimer, currentTime: number = Date.now()): boolean {
-  return calculateProgress(timer, currentTime) < 100;
+  const sessionDuration = currSessionElapsed < focusMs ? focusMs : breakMs;
+  const progress = (currSessionTypeElapsed * 100) / sessionDuration;
+  const timeRemaining = sessionDuration - currSessionTypeElapsed;
+  const totalSessions = focusTimerConfig.numberOfFocusSessions;
+  const isComplete = timeElapsed >= breakAndFocusMs * totalSessions - breakMs;
+  return {
+    type,
+    currentSession,
+    totalSessions,
+    sessionDuration,
+    progress,
+    timeRemaining,
+    isComplete,
+  };
 }
