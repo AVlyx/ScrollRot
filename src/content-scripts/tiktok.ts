@@ -6,11 +6,12 @@ import {
   getNumberWatchedShortVids,
   setNumberWatchedShortVids,
 } from "@/lib/storage";
-import { blockerConfigDefault, type BlockerConfig } from "@/types";
+import { blockerConfigDefault, type BlockerConfig, type Platform } from "@/types";
 
 //GLOBAL VARIABLES
 let CONFIG: BlockerConfig = blockerConfigDefault;
-let TIKTOKBLOCKER: TikTokBlocker | null = null;
+let BLOCKER: TikTokBlocker | null = null;
+const PLATFORM: Platform = "tiktok";
 
 interface BlockedVideo {
   element: HTMLElement;
@@ -18,6 +19,10 @@ interface BlockedVideo {
   observer?: IntersectionObserver;
   unblockTimer?: number;
   overlay?: HTMLElement;
+}
+
+function isOnTikTok(): boolean {
+  return window.location.hostname.includes("tiktok.com");
 }
 
 class TikTokBlocker {
@@ -682,49 +687,45 @@ class TikTokBlocker {
   }
 }
 
-// Initialize the blocker
-
-(async () => {
-  // Configuration - You can modify these settings
-  CONFIG = await getBlockerConfig("tiktok");
-
-  // Start blocking when on TikTok
-  if (window.location.hostname.includes("tiktok.com") && !TIKTOKBLOCKER) {
-    TIKTOKBLOCKER = new TikTokBlocker(CONFIG);
+function createBlocker() {
+  destroyBlocker();
+  if (isOnTikTok() && CONFIG.enabled) {
+    BLOCKER = new TikTokBlocker(CONFIG);
   }
+}
 
-  // Example: Update configuration dynamically
-  // This can be called from your extension's popup or options page
-  (window as any).updateBlockerConfig = (newConfig: BlockerConfig) => {
-    if (TIKTOKBLOCKER) {
-      TIKTOKBLOCKER.destroy();
-    }
-    TIKTOKBLOCKER = new TikTokBlocker(CONFIG);
-    console.log("[TikTok Blocker] Configuration updated:", newConfig);
-  };
+function destroyBlocker() {
+  if (BLOCKER) {
+    BLOCKER.destroy();
+    BLOCKER = null;
+  }
+}
 
-  // Handle navigation changes (for SPAs like TikTok)
-  let lastUrl = window.location.href;
+function blockShortForm() {
+  createBlocker();
+  // Handle navigation changes (for SPAs like Instagram)
   const navigationObserver = new MutationObserver(() => {
-    const currentUrl = window.location.href;
-    if (currentUrl !== lastUrl) {
-      lastUrl = currentUrl;
-
-      // Reinitialize if navigating to/from videos
-      if (TIKTOKBLOCKER) {
-        TIKTOKBLOCKER.destroy();
+    if (!CONFIG.enabled) {
+      destroyBlocker();
+      return;
+    }
+    if (!isOnTikTok()) {
+      destroyBlocker();
+      return;
+    }
+    if (BLOCKER) {
+      return;
+    }
+    setTimeout(() => {
+      if (BLOCKER) {
         return;
       }
-
-      if (window.location.hostname.includes("tiktok.com")) {
-        setTimeout(() => {
-          TIKTOKBLOCKER = new TikTokBlocker(CONFIG);
-        }, 500); // Small delay to let TikTok load
-      }
-    }
+      createBlocker();
+    }, 500);
+    console.log("NEW InstagramReelsBlocker CREATED");
   });
 
-  // Wait for body to exist before observing
+  // Wait for body to exist before starting navigationObserver
   const observeNavigation = () => {
     if (document.body) {
       navigationObserver.observe(document.body, {
@@ -738,24 +739,22 @@ class TikTokBlocker {
   };
 
   observeNavigation();
-})();
+}
 
-// Cleanup on page unload
-window.addEventListener("beforeunload", () => {
-  if (TIKTOKBLOCKER) {
-    TIKTOKBLOCKER.destroy();
-  }
-});
+async function loadContentScript() {
+  CONFIG = await getBlockerConfig(PLATFORM);
+  blockShortForm();
+}
 
-// Subscribe to config changes
-const unsubscribe = blockerConfigOnChange("tiktok", (newConfig) => {
+loadContentScript();
+
+const unsubscribe = blockerConfigOnChange(PLATFORM, (newConfig) => {
   CONFIG = newConfig;
-  if (window.location.hostname.includes("tiktok.com") && TIKTOKBLOCKER) {
-    TIKTOKBLOCKER.destroy();
-    TIKTOKBLOCKER = new TikTokBlocker(CONFIG);
-  }
-  console.log("BLOCKER CONFIG CHANGE DETECTED. LET'S GO");
+  destroyBlocker();
+  createBlocker();
 });
 
-// Cleanup when needed
 window.addEventListener("beforeunload", unsubscribe);
+window.addEventListener("beforeunload", () => {
+  destroyBlocker();
+});
