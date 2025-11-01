@@ -155,3 +155,36 @@
   font-size: 2rem;
   margin-bottom: 0.25rem;
 }
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.configButton {
+  background: #6b7280;
+  color: white;
+  border-color: #6b7280;
+  min-width: 48px;
+  padding: 0.625rem;
+  font-size: 1rem;
+}
+
+.configButton:hover {
+  background: #4b5563;
+  border-color: #4b5563;
+}
+
+@media (prefers-color-scheme: dark) {
+  .configButton {
+    background: #4b5563;
+    border-color: #4b5563;
+  }
+  
+  .configButton:hover {
+    background: #374151;
+    border-color: #374151;
+  }
+}
