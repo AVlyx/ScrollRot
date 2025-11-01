@@ -6,11 +6,12 @@ import {
   getNumberWatchedShortVids,
   setNumberWatchedShortVids,
 } from "@/lib/storage";
-import { blockerConfigDefault, type BlockerConfig } from "@/types";
+import { blockerConfigDefault, type BlockerConfig, type Platform } from "@/types";
 
 //GLOBAL VARIABLES
 let CONFIG: BlockerConfig = blockerConfigDefault;
-let REELSBLOCKER: InstagramReelsBlocker | null = null;
+let BLOCKER: InstagramReelsBlocker | null = null;
+const PLATFORM: Platform = "reels";
 
 interface BlockedReel {
   element: HTMLElement;
@@ -514,45 +515,41 @@ class InstagramReelsBlocker {
   }
 }
 
-// Initialize the blocker
-
-(async () => {
-  // Configuration - You can modify these settings
-  CONFIG = await getBlockerConfig("reels");
-
-  // Start blocking when on Instagram Reels
-  if (isOnReels() && !REELSBLOCKER) {
-    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
+function createBlocker() {
+  destroyBlocker();
+  if (isOnReels() && CONFIG.enabled) {
+    BLOCKER = new InstagramReelsBlocker(CONFIG);
   }
+}
 
-  // Example: Update configuration dynamically
-  // This can be called from your extension's popup or options page
-  (window as any).updateBlockerConfig = (newConfig: BlockerConfig) => {
-    if (REELSBLOCKER) {
-      REELSBLOCKER.destroy();
-    }
-    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
-    console.log("[Instagram Reels Blocker] Configuration updated:", newConfig);
-  };
+function destroyBlocker() {
+  if (BLOCKER) {
+    BLOCKER.destroy();
+    BLOCKER = null;
+  }
+}
 
+function blockShortForm() {
+  createBlocker();
   // Handle navigation changes (for SPAs like Instagram)
-  let lastOnReels: boolean = false;
   const navigationObserver = new MutationObserver(() => {
+    if (!CONFIG.enabled) {
+      destroyBlocker();
+      return;
+    }
     if (!isOnReels()) {
-      lastOnReels = false;
-      if (REELSBLOCKER) {
-        REELSBLOCKER.destroy();
-      }
+      destroyBlocker();
       return;
     }
-    if (lastOnReels) {
+    if (BLOCKER) {
       return;
     }
-    lastOnReels = true;
-    // Only create if we arrive on a reels page
     setTimeout(() => {
-      REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
-    }, 500); // Small delay to let Instagram load
+      if (BLOCKER) {
+        return;
+      }
+      createBlocker();
+    }, 500);
     console.log("NEW InstagramReelsBlocker CREATED");
   });
 
@@ -570,24 +567,22 @@ class InstagramReelsBlocker {
   };
 
   observeNavigation();
-})();
+}
 
-// Cleanup on page unload
-window.addEventListener("beforeunload", () => {
-  if (REELSBLOCKER) {
-    REELSBLOCKER.destroy();
-  }
-});
+async function loadContentScript() {
+  CONFIG = await getBlockerConfig(PLATFORM);
+  blockShortForm();
+}
 
-// Subscribe
-const unsubscribe = blockerConfigOnChange("reels", (newConfig) => {
+loadContentScript();
+
+const unsubscribe = blockerConfigOnChange(PLATFORM, (newConfig) => {
   CONFIG = newConfig;
-  if (isOnReels() && REELSBLOCKER) {
-    REELSBLOCKER.destroy();
-    REELSBLOCKER = new InstagramReelsBlocker(CONFIG);
-  }
-  console.log("BLCOKER CONFIG CHANGE DETECTED. LEST GO");
+  destroyBlocker();
+  createBlocker();
 });
 
-// Cleanup when needed
 window.addEventListener("beforeunload", unsubscribe);
+window.addEventListener("beforeunload", () => {
+  destroyBlocker();
+});

@@ -7,11 +7,12 @@ import {
   getNumberWatchedShortVids,
   setNumberWatchedShortVids,
 } from "@/lib/storage";
-import type { BlockerConfig } from "@/types";
+import type { BlockerConfig, Platform } from "@/types";
 
 //GLOBAL VARIABLES
 let CONFIG: BlockerConfig;
-let shortsBlocker: YouTubeShortsBlocker | null = null;
+let BLOCKER: YouTubeShortsBlocker | null = null;
+const PLATFORM: Platform = "shorts";
 
 function isOnShorts(): boolean {
   return (
@@ -488,34 +489,45 @@ class YouTubeShortsBlocker {
   }
 }
 
-// Initialize the blocker
+function createBlocker() {
+  destroyBlocker();
+  if (isOnShorts() && CONFIG.enabled) {
+    BLOCKER = new YouTubeShortsBlocker(CONFIG);
+  }
+}
 
-(async () => {
-  CONFIG = await getBlockerConfig("shorts");
+function destroyBlocker() {
+  if (BLOCKER) {
+    BLOCKER.destroy();
+    BLOCKER = null;
+  }
+}
 
-  // Handle navigation changes (YouTube is an SPA)
-  let lastOnShorts: boolean = false;
+function blockShortForm() {
+  createBlocker();
+  // Handle navigation changes (for SPAs like Instagram)
   const navigationObserver = new MutationObserver(() => {
+    if (!CONFIG.enabled) {
+      destroyBlocker();
+      return;
+    }
     if (!isOnShorts()) {
-      lastOnShorts = false;
-      if (shortsBlocker) {
-        shortsBlocker.destroy();
-        shortsBlocker = null;
-      }
+      destroyBlocker();
       return;
     }
-    if (lastOnShorts) {
+    if (BLOCKER) {
       return;
     }
-    lastOnShorts = true;
-    // Only create if we arrive on a shorts page
     setTimeout(() => {
-      shortsBlocker = new YouTubeShortsBlocker(CONFIG);
-    }, 500); // Small delay to let YouTube load
-    console.log("NEW YouTubeShortsBlocker CREATED");
+      if (BLOCKER) {
+        return;
+      }
+      createBlocker();
+    }, 500);
+    console.log("NEW InstagramReelsBlocker CREATED");
   });
 
-  // Wait for body to exist before observing
+  // Wait for body to exist before starting navigationObserver
   const observeNavigation = () => {
     if (document.body) {
       navigationObserver.observe(document.body, {
@@ -529,24 +541,22 @@ class YouTubeShortsBlocker {
   };
 
   observeNavigation();
+}
 
-  // Cleanup on page unload
-  window.addEventListener("beforeunload", () => {
-    if (shortsBlocker) {
-      shortsBlocker.destroy();
-    }
-  });
-})();
+async function loadContentScript() {
+  CONFIG = await getBlockerConfig(PLATFORM);
+  blockShortForm();
+}
 
-// Subscribe to config changes
-const unsubscribe = blockerConfigOnChange("shorts", (newConfig) => {
+loadContentScript();
+
+const unsubscribe = blockerConfigOnChange(PLATFORM, (newConfig) => {
   CONFIG = newConfig;
-  if (isOnShorts() && shortsBlocker) {
-    shortsBlocker.destroy();
-    shortsBlocker = new YouTubeShortsBlocker(CONFIG);
-  }
-  console.log("BLOCKER CONFIG CHANGE DETECTED. LET'S GO");
+  destroyBlocker();
+  createBlocker();
 });
 
-// Cleanup when needed
 window.addEventListener("beforeunload", unsubscribe);
+window.addEventListener("beforeunload", () => {
+  destroyBlocker();
+});
