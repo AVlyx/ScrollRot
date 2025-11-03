@@ -32,7 +32,7 @@ export async function setAllBlockerConfig(allConfig: AllBlockerConfigs) {
   await chrome.storage.local.set({ blockerConfigs: allConfig });
 }
 
-export function blockerConfigOnChange(
+export function blockerConfigOnChangeListener(
   platform: Platform,
   callback: (config: BlockerConfig) => void
 ): () => void {

@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./CircularProgress.module.css";
-import { formatTime } from "@/utils";
+import { formatTime } from "@/lib/focusTimer";
 
 interface CircularProgressProps {
   progress: number;

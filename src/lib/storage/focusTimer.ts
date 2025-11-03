@@ -47,3 +47,25 @@ export const defaultFocusTimerConfig: FocusTimerConfig = {
   pauseTime: 5,
   numberOfFocusSessions: 4,
 };
+
+export function focusTimerOnChangeListener(callback: () => void): () => void {
+  const callbackGuard = (
+    changes: { [key: string]: chrome.storage.StorageChange },
+    areaName: string
+  ) => {
+    if (areaName !== "local" || !changes.focusTimerConfig) {
+      return;
+    }
+    const { newValue } = changes.blockerConfigs as {
+      newValue?: FocusTimer;
+    };
+    if (!newValue) {
+      return;
+    }
+    callback();
+  };
+
+  chrome.storage.onChanged.addListener(callbackGuard);
+
+  return () => chrome.storage.onChanged.removeListener(callbackGuard);
+}

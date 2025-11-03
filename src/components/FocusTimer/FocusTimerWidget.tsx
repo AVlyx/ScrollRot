@@ -10,7 +10,7 @@ import {
   getFocusTimerConfig,
   defaultFocusTimerConfig,
 } from "@/lib/storage/focusTimer";
-import { getFocusDataFromConfig } from "@/utils";
+import { getFocusDataFromConfig } from "@/lib/focusTimer";
 import styles from "./FocusTimerWidget.module.css";
 
 export const FocusTimerWidget: React.FC = () => {

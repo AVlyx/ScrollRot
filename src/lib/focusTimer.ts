@@ -1,4 +1,5 @@
 import type { FocusSessionData, FocusTimer, FocusTimerConfig } from "@/types";
+import { getFocusTimer, getFocusTimerConfig } from "./storage/focusTimer";
 
 /**
  * Formats milliseconds into a human-readable time string (HH:MM:SS or MM:SS)
@@ -21,17 +22,6 @@ export function formatTime(milliseconds: number): string {
 
   return `${pad(minutes)}:${pad(seconds)}`;
 }
-
-// Check if the timer / focus session is ongoing
-// export function activeTimer(focusTimer: FocusTimer, focusTimerConfig: FocusTimerConfig): boolean {
-//   const now = Date.now();
-//   const timeElapsed = now - focusTimer.startTime;
-//   const focusMs = focusTimerConfig.focusTime * 60 * 1000;
-//   const breakMs = focusTimerConfig.pauseTime * 60 * 1000;
-//   const breakAndFocusMs = focusMs + breakMs;
-//   const totalSessions = focusTimerConfig.numberOfFocusSessions;
-//   return timeElapsed < breakAndFocusMs * totalSessions - breakMs;
-// }
 
 export function getFocusDataFromConfig(
   focusTimer: FocusTimer,
@@ -65,4 +55,17 @@ export function getFocusDataFromConfig(
     timeRemaining,
     isComplete,
   };
+}
+
+export async function getFocusData(): Promise<FocusSessionData | null> {
+  const focusTimer = await getFocusTimer();
+  const focusTimerConfig = await getFocusTimerConfig();
+  if (!focusTimer) {
+    return null;
+  }
+  if (!focusTimerConfig) {
+    console.log("[ScrollRot] Did not find focusTimerConfig");
+    return null;
+  }
+  return getFocusDataFromConfig(focusTimer, focusTimerConfig);
 }

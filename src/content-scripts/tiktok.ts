@@ -1,12 +1,13 @@
 // TikTok Content Script
 // Blocks video playback for 5 seconds after scrolling to a new video
 import {
-  blockerConfigOnChange,
+  blockerConfigOnChangeListener,
   getBlockerConfig,
   getNumberWatchedShortVids,
   setNumberWatchedShortVids,
 } from "@/lib/storage";
 import { blockerConfigDefault, type BlockerConfig, type Platform } from "@/types";
+import { condDisplayFocusDOM } from "./displayFocusDOM";
 
 //GLOBAL VARIABLES
 let CONFIG: BlockerConfig = blockerConfigDefault;
@@ -742,13 +743,14 @@ function blockShortForm() {
 }
 
 async function loadContentScript() {
+  condDisplayFocusDOM();
   CONFIG = await getBlockerConfig(PLATFORM);
   blockShortForm();
 }
 
 loadContentScript();
 
-const unsubscribe = blockerConfigOnChange(PLATFORM, (newConfig) => {
+const unsubscribe = blockerConfigOnChangeListener(PLATFORM, (newConfig) => {
   CONFIG = newConfig;
   destroyBlocker();
   createBlocker();
