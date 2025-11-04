@@ -2,17 +2,10 @@
 // Blocks video playback for 5 seconds after scrolling to a new video
 import {
   blockerConfigOnChangeListener,
-  getBlockerConfig,
   getNumberWatchedShortVids,
   setNumberWatchedShortVids,
 } from "@/lib/storage";
-import { blockerConfigDefault, type BlockerConfig, type Platform } from "@/types";
-import { condDisplayFocusDOM } from "./displayFocusDOM";
-
-//GLOBAL VARIABLES
-let CONFIG: BlockerConfig = blockerConfigDefault;
-let BLOCKER: TikTokBlocker | null = null;
-const PLATFORM: Platform = "tiktok";
+import { type BlockerConfig } from "@/types";
 
 interface BlockedVideo {
   element: HTMLElement;
@@ -26,7 +19,7 @@ function isOnTikTok(): boolean {
   return window.location.hostname.includes("tiktok.com");
 }
 
-class TikTokBlocker {
+class VideoBlocker {
   private blockedVideos: Map<HTMLElement, BlockedVideo> = new Map();
   private observedContainers: Set<HTMLElement> = new Set();
   private processedContainers: Set<HTMLElement> = new Set(); // Track containers, not videos
@@ -688,75 +681,82 @@ class TikTokBlocker {
   }
 }
 
-function createBlocker() {
-  destroyBlocker();
-  if (isOnTikTok() && CONFIG.enabled) {
-    BLOCKER = new TikTokBlocker(CONFIG);
-  }
-}
+export class Blocker {
+  private pageObserver: MutationObserver;
+  private videoBlocker: VideoBlocker | null = null;
+  private config: BlockerConfig;
+  private configChangeListener: () => void;
+  private readonly platform = "tiktok";
 
-function destroyBlocker() {
-  if (BLOCKER) {
-    BLOCKER.destroy();
-    BLOCKER = null;
+  constructor(config: BlockerConfig) {
+    this.pageObserver = this.spaNavigationObserver();
+    this.config = config;
+    this.configChangeListener = this.listenForConfigChange();
   }
-}
 
-function blockShortForm() {
-  createBlocker();
-  // Handle navigation changes (for SPAs like Instagram)
-  const navigationObserver = new MutationObserver(() => {
-    if (!CONFIG.enabled) {
-      destroyBlocker();
-      return;
+  private renewVideoBlocker() {
+    this.destroyBlocker();
+    if (isOnTikTok() && this.config.enabled) {
+      this.videoBlocker = new VideoBlocker(this.config);
     }
-    if (!isOnTikTok()) {
-      destroyBlocker();
-      return;
+  }
+
+  private destroyBlocker(): void {
+    if (this.videoBlocker) {
+      this.videoBlocker.destroy();
+      this.videoBlocker = null;
     }
-    if (BLOCKER) {
-      return;
-    }
-    setTimeout(() => {
-      if (BLOCKER) {
+  }
+
+  private spaNavigationObserver(): MutationObserver {
+    const pageObserver = new MutationObserver(() => {
+      if (!this.config.enabled) {
+        this.destroyBlocker();
         return;
       }
-      createBlocker();
-    }, 500);
-    console.log("NEW InstagramReelsBlocker CREATED");
-  });
+      if (!isOnTikTok()) {
+        this.destroyBlocker();
+        return;
+      }
+      if (this.videoBlocker) {
+        return;
+      }
+      setTimeout(() => {
+        if (this.videoBlocker) {
+          return;
+        }
+        this.renewVideoBlocker();
+      }, 500);
+      console.log("NEW VideoBlocker CREATED");
+    });
+    const observeNavigation = () => {
+      if (document.body) {
+        pageObserver.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+      } else {
+        // Body doesn't exist yet, wait for it
+        setTimeout(observeNavigation, 100);
+      }
+      return pageObserver;
+    };
+    observeNavigation();
+    return pageObserver;
+  }
 
-  // Wait for body to exist before starting navigationObserver
-  const observeNavigation = () => {
-    if (document.body) {
-      navigationObserver.observe(document.body, {
-        childList: true,
-        subtree: true,
-      });
-    } else {
-      // Body doesn't exist yet, wait for it
-      setTimeout(observeNavigation, 100);
-    }
-  };
+  private listenForConfigChange(): () => void {
+    const configChangeListener = blockerConfigOnChangeListener(this.platform, (newConfig) => {
+      this.config = newConfig;
+      this.renewVideoBlocker();
+    });
+    window.addEventListener("beforeunload", configChangeListener);
+    return configChangeListener;
+  }
 
-  observeNavigation();
+  public destroy() {
+    this.configChangeListener();
+    this.pageObserver.disconnect();
+    this.videoBlocker?.destroy();
+  }
 }
-
-async function loadContentScript() {
-  condDisplayFocusDOM();
-  CONFIG = await getBlockerConfig(PLATFORM);
-  blockShortForm();
-}
-
-loadContentScript();
-
-const unsubscribe = blockerConfigOnChangeListener(PLATFORM, (newConfig) => {
-  CONFIG = newConfig;
-  destroyBlocker();
-  createBlocker();
-});
-
-window.addEventListener("beforeunload", unsubscribe);
-window.addEventListener("beforeunload", () => {
-  destroyBlocker();
-});

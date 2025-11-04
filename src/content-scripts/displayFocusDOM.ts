@@ -1,5 +1,7 @@
 import { getFocusData } from "@/lib/focusTimer";
 import { focusTimerOnChangeListener } from "@/lib/storage/focusTimer";
+import type { Blocker } from "./instagram/blocker";
+import type { BlockerType } from "./BlockerType";
 
 /**
  * Removes the current DOM and displays a focus message
@@ -104,6 +106,33 @@ function displayFocusDOM(): void {
   });
 }
 
+export class FocusDOM {
+  private onTimerUpdateListener: () => void;
+  private blockerConstructor: () => BlockerType;
+  private blocker: BlockerType | null = null;
+
+  constructor(blockerConst: () => BlockerType) {
+    this.onTimerUpdateListener = this.listenForFocusTimerUpdate();
+    this.blockerConstructor = blockerConst;
+  }
+
+  async init() {
+    const focusSessionData = await getFocusData();
+    if(!focusSessionData)
+  }
+
+  private refreshBlocker(){
+    if(this.blocker){
+      this.blocker.destroy()
+    }
+    this.blocker = this.blockerConstructor()
+  }
+
+  private listenForFocusTimerUpdate() {
+    return focusTimerOnChangeListener(() => {});
+  }
+}
+
 export async function condDisplayFocusDOM() {
   const focusSessionData = await getFocusData();
   if (!focusSessionData || focusSessionData.isComplete) {
@@ -114,5 +143,8 @@ export async function condDisplayFocusDOM() {
   } else {
     setTimeout(condDisplayFocusDOM, focusSessionData.timeRemaining + 500);
   }
-  focusTimerOnChangeListener(condDisplayFocusDOM);
+  const changeListener = focusTimerOnChangeListener(condDisplayFocusDOM);
+  return () => {
+    changeListener();
+  };
 }
