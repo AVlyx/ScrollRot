@@ -9,7 +9,7 @@ export interface BlockerConfig {
 export const blockerConfigDefault: BlockerConfig = {
   enabled: true,
   autoPlayAfterBlock: true,
-  blockDuration: 5000,
+  blockDuration: 5,
 };
 
 export type AllBlockerConfigs = Record<Platform, BlockerConfig>;

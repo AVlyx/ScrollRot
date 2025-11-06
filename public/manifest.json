@@ -4,8 +4,13 @@
   "version": "1.0",
   "description": "Stripe and firebase",
   "action": {
-    "default_popup": "src/popupPage/index.html",
-    "default_icon": "assets/icon.png"
+    "default_popup": "src/popupPage/index.html"
+  },
+  "icons": {
+    "16": "assets/icon_16.png",
+    "32": "assets/icon_32.png",
+    "48": "assets/icon_48.png",
+    "128": "assets/icon_128.png"
   },
   "options_page": "src/optionsPage/index.html",
   "permissions": ["tabs", "identity", "identity.email", "storage"],
