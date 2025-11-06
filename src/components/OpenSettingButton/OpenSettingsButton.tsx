@@ -1,15 +1,13 @@
 import React from "react";
+import styles from "./OpenSettingsButton.module.css";
 
 const OpenSettingsButton: React.FC = () => {
-  const handleClick = () => {
+  const handleClick = (): void => {
     chrome.runtime.openOptionsPage();
   };
 
   return (
-    <button
-      onClick={handleClick}
-      className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg shadow-sm transition w-full"
-    >
+    <button onClick={handleClick} className={styles.button}>
       Open Settings
     </button>
   );

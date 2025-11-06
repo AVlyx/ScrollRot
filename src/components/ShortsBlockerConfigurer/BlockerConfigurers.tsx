@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
 import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
+import { blockerConfigDefault } from "@/types";
 import { getAllBlockerConfig, setAllBlockerConfig } from "@/lib/storage";
 import styles from "./BlockerConfigurers.module.css";
 
-const defaultConfig: BlockerConfig = {
-  enabled: false,
-  autoPlayAfterBlock: false,
-  blockDuration: 5,
-};
-
 const BlockerConfigurers: React.FC = () => {
   const [configs, setConfigs] = useState<AllBlockerConfigs>({
-    shorts: { ...defaultConfig },
-    reels: { ...defaultConfig },
-    tiktok: { ...defaultConfig },
+    shorts: { ...blockerConfigDefault },
+    reels: { ...blockerConfigDefault },
+    tiktok: { ...blockerConfigDefault },
   });
 
   // Load from storage
