@@ -42,9 +42,6 @@ const BlockerConfigurers: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Video Blocker Settings</h1>
-
-      {/* Render all platforms */}
       {(Object.keys(configs) as Platform[]).map((platform) => (
         <div key={platform} className={styles.platformSection}>
           <h2 className={styles.platformTitle}>{platformLabels[platform]}</h2>
@@ -56,8 +53,6 @@ const BlockerConfigurers: React.FC = () => {
           </div>
         </div>
       ))}
-
-      <p className={styles.footer}>Settings auto-save for each platform.</p>
     </div>
   );
 };
