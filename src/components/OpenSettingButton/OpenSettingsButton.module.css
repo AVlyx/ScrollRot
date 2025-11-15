@@ -1,17 +1,19 @@
+/* Button Base Styles */
 .button {
-  background-color: #2563eb;
-  color: white;
-  font-weight: 500;
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
   width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background-color: #2563eb;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Button States */
 .button:hover {
   background-color: #1d4ed8;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -28,6 +30,7 @@
   outline-offset: 2px;
 }
 
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
   .button {
     background-color: #3b82f6;
@@ -44,6 +47,6 @@
   }
 
   .button:focus {
-    outline: 2px solid #60a5fa;
+    outline-color: #60a5fa;
   }
 }
