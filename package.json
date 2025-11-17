@@ -12,7 +12,10 @@
     "dev": "vite --config vite.config.ts",
     "build:app": "vite build --config vite.config.ts",
     "build:content": "node build-content-scripts.mjs",
-    "build": "npm run build:app && npm run build:content"
+    "build": "npm run build:app && npm run build:content",
+    "screenpromo:marquee": "npx capture-website assets/marquee-promo.html --width=1400 --height=560 --output=assets/marquee-promo.png --overwrite --scale-factor=1",
+    "screenpromo:small": "npx capture-website assets/small-promo.html --width=440 --height=280 --output=assets/small-promo.png --overwrite --scale-factor=1",
+    "screenpromo": "npm run screenpromo:marquee && npm run screenpromo:small"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

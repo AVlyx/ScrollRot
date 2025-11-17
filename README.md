@@ -1,75 +1,84 @@
-# React + TypeScript + Vite
+⏱️ STOP ENDLESS SCROLLING. RECLAIM YOUR TIME.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ScrollRot adds mandatory delays between YouTube Shorts, TikTok videos, and Instagram Reels - giving you control over your screen time and breaking the infinite scroll addiction.
 
-Currently, two official plugins are available:
+🎯 KEY FEATURES
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+⏸️ Custom Video Delays
+Add a pause between each short video on YouTube Shorts, TikTok, and Instagram Reels. Choose your delay duration to:
 
-## React Compiler
+- Break the autopilot scrolling habit
+- Give yourself time to decide if you want to continue
+- Prevent mindless binge-watching
+- Reduce daily screen time by hours
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+📊 Usage Tracking
+See exactly how many Reels, Shorts, and TikToks you watch:
 
-Note: This will impact Vite dev & build performances.
+- Real-time counter shows videos watched today
+- Stay accountable to your screen time goals
 
-## Expanding the ESLint configuration
+🍅 Pomodoro Focus Mode
+Complete lockout of YouTube Shorts, TikTok, and Instagram Reels during work sessions:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Set custom focus intervals (25min, 50min, or custom)
+- Automatic break reminders
+- Stay productive without temptation
+- Build better digital habits
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+✅ WORKS ON
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- YouTube Shorts
+- TikTok
+- Instagram Reels
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+💡 WHY YOU NEED SCROLLROT
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Short-form video platforms are engineered to keep you scrolling for hours. The autoplay feature removes any friction, making it nearly impossible to stop.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+ScrollRot fights back by adding intentional pauses - giving your brain a chance to break free from the dopamine loop.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Perfect for:
+✓ Students struggling with study distractions
+✓ Professionals losing work hours to social media
+✓ Anyone trying to reduce phone addiction
+✓ People practicing digital minimalism and digital detox
+✓ Parents wanting to limit their own screen time
+
+🔒 PRIVACY GUARANTEED
+
+- Zero data collection - all stats stored locally only
+- No tracking or analytics sent to servers
+- Works completely offline
+- No account required
+- Open source (coming soon)
+
+📊 TAKE BACK YOUR TIME
+
+The average person spends 2+ hours daily on short-form video content. That's 730 hours per year - over 30 full days.
+
+What could you do with an extra month every year?
+
+With ScrollRot's usage tracking, you'll see exactly how many videos you're watching and watch that number drop as you build healthier habits.
+
+⭐ PROVEN RESULTS
+
+Users report (me, the only user, reports):
+
+- 50-70% reduction in social media time
+- Better focus during work/study sessions
+- Improved sleep (less late-night scrolling)
+- More time for hobbies, exercise, and relationships
+- Eye-opening awareness from seeing their actual usage stats
+
+🚀 GET STARTED IN SECONDS
+
+1. Install ScrollRot
+2. Set your preferred delay time (or use defaults)
+3. Check your stats to see current usage
+4. Enable Pomodoro mode when you need to focus
+5. Watch your video count drop and productivity soar
+
+Need help? Have suggestions? Contact us at [your email/support link]
+
+Break free from scroll addiction. Install ScrollRot today.
