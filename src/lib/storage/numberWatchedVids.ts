@@ -1,17 +1,52 @@
 import { type Platform } from "@/types";
 
+interface WatchedData {
+  count: number;
+  lastResetDate: string; // ISO date string (YYYY-MM-DD)
+}
+
+function getResetDate(date: Date = new Date()): string {
+  // If it's before 3am, consider it part of the previous day
+  const resetDate = new Date(date);
+  if (resetDate.getHours() < 3) {
+    resetDate.setDate(resetDate.getDate() - 1);
+  }
+  // Return date in YYYY-MM-DD format
+  return resetDate.toISOString().split("T")[0];
+}
+
+function shouldReset(lastResetDate: string | undefined): boolean {
+  if (!lastResetDate) return true;
+
+  const currentResetDate = getResetDate();
+  return lastResetDate !== currentResetDate;
+}
+
 export async function setNumberWatchedShortVids(platform: Platform, watched: number) {
-  await chrome.storage.local.set({ [`nwatched${platform}`]: watched });
+  const data: WatchedData = {
+    count: watched,
+    lastResetDate: getResetDate(),
+  };
+  await chrome.storage.local.set({ [`nwatched${platform}`]: data });
 }
 
 export async function getNumberWatchedShortVids(platform: Platform): Promise<number> {
   try {
-    const data = await chrome.storage.local.get(`nwatched${platform}`);
-    const result = (data[`nwatched${platform}`] ?? null) as number | null;
-    if (result == null) {
-      return 0;
+    const result = await chrome.storage.local.get(`nwatched${platform}`);
+    const data = result[`nwatched${platform}`] as WatchedData | null | undefined;
+
+    // Handle new format
+    if (data && typeof data === "object" && "count" in data) {
+      // Check if we need to reset
+      if (shouldReset(data.lastResetDate)) {
+        await setNumberWatchedShortVids(platform, 0);
+        return 0;
+      }
+      return data.count;
     }
-    return result;
+
+    // No data exists yet
+    return 0;
   } catch (err) {
     console.error("Failed to load configs:", err);
     return 0;
