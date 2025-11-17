@@ -23,7 +23,6 @@ class VideoBlocker {
   private currentBlockTimeout: number | null = null;
   private currentVideoSrc: string = "";
   private shortsWatchedCount: number = 0;
-  private counterElement: HTMLDivElement | null = null;
   private scrollHandler: ((e: Event) => void) | null = null;
   private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
   private touchstartHandler: ((e: TouchEvent) => void) | null = null;
@@ -51,71 +50,10 @@ class VideoBlocker {
   }
 
   private start(): void {
-    // Create counter display
-    this.createCounterDisplay();
-
     // Listen for scroll events on the shorts container
     this.listenForScrollEvents();
 
     console.log("[YouTube Shorts Blocker] Started successfully");
-  }
-
-  private createCounterDisplay(): void {
-    // Create the counter element
-    this.counterElement = document.createElement("div");
-    this.counterElement.className = "shorts-counter-display";
-    this.counterElement.style.cssText = `
-      position: fixed;
-      top: 60px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-family: Roboto, Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    `;
-
-    const icon = document.createElement("span");
-    icon.textContent = "🎬";
-    icon.style.fontSize = "20px";
-
-    const countText = document.createElement("span");
-    countText.className = "shorts-counter-text";
-    countText.textContent = `Shorts: ${this.shortsWatchedCount}`;
-
-    this.counterElement.appendChild(icon);
-    this.counterElement.appendChild(countText);
-
-    // Add to the page
-    document.body.appendChild(this.counterElement);
-
-    console.log("[YouTube Shorts Blocker] Counter display created");
-  }
-
-  private updateCounterDisplay(): void {
-    if (this.counterElement) {
-      const countText = this.counterElement.querySelector(".shorts-counter-text");
-      if (countText) {
-        countText.textContent = `Shorts: ${this.shortsWatchedCount}`;
-
-        // Add a subtle animation on update
-        this.counterElement.style.transform = "scale(1.1)";
-        setTimeout(() => {
-          if (this.counterElement) {
-            this.counterElement.style.transform = "scale(1)";
-          }
-        }, 200);
-      }
-    }
   }
 
   private listenForScrollEvents(): void {
@@ -226,10 +164,9 @@ class VideoBlocker {
       videoSrc.substring(0, 50) + "..."
     );
 
-    // Increment counter and update display
+    // Increment counter and update storage
     this.shortsWatchedCount++;
     await setNumberWatchedShortVids("shorts", this.shortsWatchedCount);
-    this.updateCounterDisplay();
 
     // If we don't have a container, use the video's parent
     if (!currentContainer) {
@@ -383,8 +320,8 @@ class VideoBlocker {
     // Check if overlay already exists to prevent duplicates
     const existingOverlay = document.querySelector(".shorts-blocker-overlay");
     if (existingOverlay) {
-      console.log("[YouTube Shorts Blocker] Overlay already exists, skipping");
-      return;
+      console.log("[YouTube Shorts Blocker] Overlay already exists, removing old one");
+      existingOverlay.remove();
     }
 
     // Find the shorts container
@@ -400,32 +337,60 @@ class VideoBlocker {
     overlay.style.cssText = `
       position: absolute;
       top: 48%;
-      left: 46%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
+      left: 48%;
+      transform: translate(-50%, -47%);
+      background: rgba(0, 0, 0, 0.85);
       color: white;
-      padding: 20px 30px;
-      border-radius: 12px;
+      padding: 25px 40px;
+      border-radius: 16px;
       font-family: Roboto, Arial, sans-serif;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       z-index: 10000;
       pointer-events: none;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      min-width: 200px;
     `;
 
-    const icon = document.createElement("span");
-    icon.textContent = "⏸️";
-    icon.style.fontSize = "24px";
+    const pauseIcon = document.createElement("span");
+    pauseIcon.textContent = "⏸️";
+    pauseIcon.style.fontSize = "28px";
 
-    const text = document.createElement("span");
-    text.className = "shorts-blocker-text";
+    const countdownText = document.createElement("span");
+    countdownText.className = "shorts-blocker-countdown";
+    countdownText.style.fontSize = "17px";
 
-    overlay.appendChild(icon);
-    overlay.appendChild(text);
+    // Counter section with icon
+    const counterContainer = document.createElement("div");
+    counterContainer.style.cssText = `
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    `;
+
+    const shortsIcon = document.createElement("span");
+    shortsIcon.textContent = "🎬";
+    shortsIcon.style.fontSize = "17px";
+
+    const counterText = document.createElement("span");
+    counterText.className = "shorts-counter-text";
+    counterText.textContent = `Shorts watched: ${this.shortsWatchedCount}`;
+    counterText.style.cssText = `
+      font-size: 17px;
+      opacity: 0.8;
+    `;
+
+    counterContainer.appendChild(shortsIcon);
+    counterContainer.appendChild(counterText);
+
+    overlay.appendChild(pauseIcon);
+    overlay.appendChild(countdownText);
+    overlay.appendChild(counterContainer);
 
     // Ensure the shorts-container has relative positioning for absolute child
     const containerStyle = window.getComputedStyle(shortsContainer);
@@ -440,7 +405,7 @@ class VideoBlocker {
     const updateCountdown = () => {
       const remaining = Math.ceil((unblockTime - Date.now()) / 1000);
       if (remaining > 0) {
-        text.textContent = `Wait ${remaining}s...`;
+        countdownText.textContent = `Wait ${remaining}s...`;
         requestAnimationFrame(updateCountdown);
       } else {
         overlay.remove();
@@ -484,11 +449,6 @@ class VideoBlocker {
 
     if (this.currentBlockTimeout !== null) {
       clearTimeout(this.currentBlockTimeout);
-    }
-
-    // Remove the counter display
-    if (this.counterElement && this.counterElement.parentElement) {
-      this.counterElement.remove();
     }
 
     this.currentVideoSrc = "";

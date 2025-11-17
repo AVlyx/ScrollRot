@@ -32,7 +32,6 @@ class VideoBlocker {
   private intersectionObserver: IntersectionObserver | null = null;
   private observeDebounceTimer: number | null = null;
   private reelsWatchedCount: number = 0;
-  private counterElement: HTMLDivElement | null = null;
 
   constructor(config: BlockerConfig) {
     this.config = config;
@@ -54,9 +53,6 @@ class VideoBlocker {
   private start(): void {
     // Create intersection observer to detect when reels come into view
     this.createIntersectionObserver();
-
-    // Create counter display
-    this.createCounterDisplay();
 
     // Observe existing reels once
     this.observeExistingReels();
@@ -80,64 +76,6 @@ class VideoBlocker {
         rootMargin: "0px",
       }
     );
-  }
-
-  private createCounterDisplay(): void {
-    // Create the counter element
-    this.counterElement = document.createElement("div");
-    this.counterElement.className = "reels-counter-display";
-    this.counterElement.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    `;
-
-    const icon = document.createElement("span");
-    icon.textContent = "🎬";
-    icon.style.fontSize = "20px";
-
-    const countText = document.createElement("span");
-    countText.className = "reels-counter-text";
-    countText.textContent = `Reels: ${this.reelsWatchedCount}`;
-
-    this.counterElement.appendChild(icon);
-    this.counterElement.appendChild(countText);
-
-    // Add to the page
-    document.body.appendChild(this.counterElement);
-
-    console.log("[Instagram Reels Blocker] Counter display created");
-  }
-
-  private updateCounterDisplay(): void {
-    if (this.counterElement) {
-      const countText = this.counterElement.querySelector(".reels-counter-text");
-      if (countText) {
-        countText.textContent = `Reels: ${this.reelsWatchedCount}`;
-
-        // Add a subtle animation on update
-        this.counterElement.style.transform = "scale(1.1)";
-        setTimeout(() => {
-          if (this.counterElement) {
-            this.counterElement.style.transform = "scale(1)";
-          }
-        }, 200);
-      }
-    }
   }
 
   private observeExistingReels(): void {
@@ -299,7 +237,6 @@ class VideoBlocker {
     // Increment the counter for each new reel viewed
     this.reelsWatchedCount++;
     setNumberWatchedShortVids("reels", this.reelsWatchedCount);
-    this.updateCounterDisplay();
 
     console.log(
       "[Instagram Reels Blocker] New reel in view, blocking for 5s (Total reels: " +
@@ -443,33 +380,62 @@ class VideoBlocker {
     const overlay = document.createElement("div");
     overlay.className = "reels-blocker-overlay";
     overlay.style.cssText = `
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      z-index: 9999;
-      pointer-events: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    `;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 25px 40px;
+    border-radius: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 200px;
+  `;
 
-    const icon = document.createElement("span");
-    icon.textContent = "⏸️";
-    icon.style.fontSize = "20px";
+    const pauseIcon = document.createElement("span");
+    pauseIcon.textContent = "⏸️";
+    pauseIcon.style.fontSize = "28px";
 
-    const text = document.createElement("span");
-    text.className = "reels-blocker-text";
+    const countdownText = document.createElement("span");
+    countdownText.className = "reels-blocker-countdown";
+    countdownText.style.fontSize = "17px";
 
-    overlay.appendChild(icon);
-    overlay.appendChild(text);
+    // Counter section with icon
+    const counterContainer = document.createElement("div");
+    counterContainer.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  `;
+
+    const reelsIcon = document.createElement("span");
+    reelsIcon.textContent = "🎬";
+    reelsIcon.style.fontSize = "17px";
+
+    const counterText = document.createElement("span");
+    counterText.className = "reels-counter-text";
+    counterText.textContent = `Reels watched: ${this.reelsWatchedCount}`;
+    counterText.style.cssText = `
+    font-size: 17px;
+    opacity: 0.8;
+  `;
+
+    counterContainer.appendChild(reelsIcon);
+    counterContainer.appendChild(counterText);
+
+    overlay.appendChild(pauseIcon);
+    overlay.appendChild(countdownText);
+    overlay.appendChild(counterContainer);
 
     videoWrapper.style.position = "relative";
     videoWrapper.appendChild(overlay);
@@ -478,7 +444,7 @@ class VideoBlocker {
     const updateCountdown = () => {
       const remaining = Math.ceil((unblockTime - Date.now()) / 1000);
       if (remaining > 0) {
-        text.textContent = `Wait ${remaining}s...`;
+        countdownText.textContent = `Wait ${remaining}s...`;
         requestAnimationFrame(updateCountdown);
       } else {
         overlay.remove();
@@ -499,11 +465,6 @@ class VideoBlocker {
 
     if (this.observeDebounceTimer !== null) {
       clearTimeout(this.observeDebounceTimer);
-    }
-
-    // Remove the counter display
-    if (this.counterElement && this.counterElement.parentElement) {
-      this.counterElement.remove();
     }
 
     this.blockedReels.clear();

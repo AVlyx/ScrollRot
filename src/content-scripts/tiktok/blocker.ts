@@ -29,7 +29,6 @@ class VideoBlocker {
   private observeDebounceTimer: number | null = null;
   private periodicCheckInterval: number | null = null;
   private videosWatchedCount: number = 0;
-  private counterElement: HTMLDivElement | null = null;
 
   constructor(config: BlockerConfig) {
     this.config = config;
@@ -51,9 +50,6 @@ class VideoBlocker {
   private start(): void {
     // Create intersection observer to detect when videos come into view
     this.createIntersectionObserver();
-
-    // Create counter display
-    this.createCounterDisplay();
 
     // Observe existing videos once
     this.observeExistingVideos();
@@ -97,64 +93,6 @@ class VideoBlocker {
       }
     );
     console.log("[TikTok Blocker] IntersectionObserver created with threshold 0.5");
-  }
-
-  private createCounterDisplay(): void {
-    // Create the counter element
-    this.counterElement = document.createElement("div");
-    this.counterElement.className = "tiktok-counter-display";
-    this.counterElement.style.cssText = `
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      z-index: 10000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s ease;
-    `;
-
-    const icon = document.createElement("span");
-    icon.textContent = "🎬";
-    icon.style.fontSize = "20px";
-
-    const countText = document.createElement("span");
-    countText.className = "tiktok-counter-text";
-    countText.textContent = `TikToks: ${this.videosWatchedCount}`;
-
-    this.counterElement.appendChild(icon);
-    this.counterElement.appendChild(countText);
-
-    // Add to the page
-    document.body.appendChild(this.counterElement);
-
-    console.log("[TikTok Blocker] Counter display created");
-  }
-
-  private updateCounterDisplay(): void {
-    if (this.counterElement) {
-      const countText = this.counterElement.querySelector(".tiktok-counter-text");
-      if (countText) {
-        countText.textContent = `TikToks: ${this.videosWatchedCount}`;
-
-        // Add a subtle animation on update
-        this.counterElement.style.transform = "scale(1.1)";
-        setTimeout(() => {
-          if (this.counterElement) {
-            this.counterElement.style.transform = "scale(1)";
-          }
-        }, 200);
-      }
-    }
   }
 
   private observeExistingVideos(): void {
@@ -359,7 +297,6 @@ class VideoBlocker {
     // Increment counter and update storage
     this.videosWatchedCount++;
     setNumberWatchedShortVids("tiktok", this.videosWatchedCount);
-    this.updateCounterDisplay();
 
     // Find the video element within this container
     const video = container.querySelector("video") as HTMLVideoElement;
@@ -549,34 +486,62 @@ class VideoBlocker {
     const overlay = document.createElement("div");
     overlay.className = "tiktok-blocker-overlay";
     overlay.style.cssText = `
-      position: absolute !important;
-      top: 50% !important;
-      left: 50% !important;
-      transform: translate(-50%, -50%) !important;
-      background: rgba(0, 0, 0, 0.85) !important;
-      color: white !important;
-      padding: 20px 30px !important;
-      border-radius: 12px !important;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-      font-size: 16px !important;
-      font-weight: 600 !important;
-      z-index: 999999 !important;
-      pointer-events: none !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 12px !important;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    `;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 25px 40px;
+    border-radius: 16px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    min-width: 200px;
+  `;
 
-    const icon = document.createElement("span");
-    icon.textContent = "⏸️";
-    icon.style.fontSize = "24px";
+    const pauseIcon = document.createElement("span");
+    pauseIcon.textContent = "⏸️";
+    pauseIcon.style.fontSize = "28px";
 
-    const text = document.createElement("span");
-    text.className = "tiktok-blocker-text";
+    const countdownText = document.createElement("span");
+    countdownText.className = "tiktok-blocker-countdown";
+    countdownText.style.fontSize = "17px";
 
-    overlay.appendChild(icon);
-    overlay.appendChild(text);
+    // Counter section with icon
+    const counterContainer = document.createElement("div");
+    counterContainer.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+  `;
+
+    const tiktokIcon = document.createElement("span");
+    tiktokIcon.textContent = "🎬";
+    tiktokIcon.style.fontSize = "17px";
+
+    const counterText = document.createElement("span");
+    counterText.className = "tiktok-counter-text";
+    counterText.textContent = `Watched ${this.videosWatchedCount}`;
+    counterText.style.cssText = `
+    font-size: 17px;
+    opacity: 0.8;
+  `;
+
+    counterContainer.appendChild(tiktokIcon);
+    counterContainer.appendChild(counterText);
+
+    overlay.appendChild(pauseIcon);
+    overlay.appendChild(countdownText);
+    overlay.appendChild(counterContainer);
 
     // Ensure video has relative positioning for absolute overlay
     const videoStyle = window.getComputedStyle(video);
@@ -600,7 +565,7 @@ class VideoBlocker {
     const updateCountdown = () => {
       const remaining = Math.ceil((unblockTime - Date.now()) / 1000);
       if (remaining > 0) {
-        text.textContent = `Wait ${remaining}s...`;
+        countdownText.textContent = `Wait ${remaining}s...`;
         animationFrameId = requestAnimationFrame(updateCountdown);
       } else {
         console.log("[TikTok Blocker] Countdown complete, removing overlay");
@@ -646,11 +611,6 @@ class VideoBlocker {
       this.periodicCheckInterval = null;
     }
 
-    // Remove the counter display
-    if (this.counterElement && this.counterElement.parentElement) {
-      this.counterElement.remove();
-    }
-
     // Clear all blocked video timers and remove overlays
     this.blockedVideos.forEach((blockedVideo) => {
       // Clear the unblock timer
@@ -680,7 +640,6 @@ class VideoBlocker {
     console.log("[TikTok Blocker] Destroyed successfully");
   }
 }
-
 export class Blocker {
   private pageObserver: MutationObserver;
   private videoBlocker: VideoBlocker | null = null;
