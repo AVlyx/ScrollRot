@@ -40,17 +40,28 @@ const BlockerConfigurers: React.FC = () => {
     tiktok: "TikTok",
   };
 
+  const platformIcons: Record<Platform, string> = {
+    shorts: "🎬",
+    reels: "📱",
+    tiktok: "🎵",
+  };
+
   return (
     <div className={styles.container}>
-      {(Object.keys(configs) as Platform[]).map((platform) => (
+      {(Object.keys(configs) as Platform[]).map((platform, index) => (
         <div key={platform} className={styles.platformSection}>
-          <h2 className={styles.platformTitle}>{platformLabels[platform]}</h2>
+          <div className={styles.platformHeader}>
+            <h2 className={styles.platformTitle}>
+              {platformIcons[platform] + platformLabels[platform]}
+            </h2>
+          </div>
           <div className={styles.platformContent}>
             <BlockerConfigurer
               config={configs[platform]}
               onChange={(partial) => updateConfig(platform, partial)}
             />
           </div>
+          {index < Object.keys(configs).length - 1 && <div className={styles.divider} />}
         </div>
       ))}
     </div>

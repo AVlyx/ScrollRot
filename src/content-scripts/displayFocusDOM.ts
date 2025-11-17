@@ -90,23 +90,16 @@ function checkAndShowFocusDOMAfterReload(): void {
     `;
     head.appendChild(style);
 
-    // Create message container
     const container = document.createElement("div");
     container.className = "container";
-
-    const icon = document.createElement("div");
-    icon.className = "icon";
-    icon.textContent = "🔒";
-
-    const heading = document.createElement("h1");
-    heading.textContent = "Can't access this page right now";
-
-    const message = document.createElement("p");
-    message.textContent = "Please don't lose focus.";
-
-    container.appendChild(icon);
-    container.appendChild(heading);
-    container.appendChild(message);
+    container.innerHTML = `
+      <div class="icon">🔒</div>
+      <h1>Can't access this page right now</h1>
+      <p>Stay strong! Your break is almost here</p>
+      <br>
+      <p><b>Pro tip</b>: The best breaks don't involve screens. Stand up, stretch, or grab some water.</p>
+      <p>Your brain will thank you.</p>
+    `;
     body.appendChild(container);
 
     // Build the new document
