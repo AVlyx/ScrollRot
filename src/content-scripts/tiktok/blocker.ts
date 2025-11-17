@@ -105,7 +105,7 @@ class VideoBlocker {
     this.counterElement.className = "tiktok-counter-display";
     this.counterElement.style.cssText = `
       position: fixed;
-      top: 20px;
+      top: 80px;
       right: 20px;
       background: rgba(0, 0, 0, 0.8);
       color: white;

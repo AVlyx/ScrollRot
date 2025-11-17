@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
 import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
+import { blockerConfigDefault } from "@/types";
 import { getAllBlockerConfig, setAllBlockerConfig } from "@/lib/storage";
 import styles from "./BlockerConfigurers.module.css";
 
-const defaultConfig: BlockerConfig = {
-  enabled: false,
-  autoPlayAfterBlock: false,
-  blockDuration: 5,
-};
-
 const BlockerConfigurers: React.FC = () => {
   const [configs, setConfigs] = useState<AllBlockerConfigs>({
-    shorts: { ...defaultConfig },
-    reels: { ...defaultConfig },
-    tiktok: { ...defaultConfig },
+    shorts: { ...blockerConfigDefault },
+    reels: { ...blockerConfigDefault },
+    tiktok: { ...blockerConfigDefault },
   });
 
   // Load from storage
@@ -47,9 +42,6 @@ const BlockerConfigurers: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Video Blocker Settings</h1>
-
-      {/* Render all platforms */}
       {(Object.keys(configs) as Platform[]).map((platform) => (
         <div key={platform} className={styles.platformSection}>
           <h2 className={styles.platformTitle}>{platformLabels[platform]}</h2>
@@ -61,8 +53,6 @@ const BlockerConfigurers: React.FC = () => {
           </div>
         </div>
       ))}
-
-      <p className={styles.footer}>Settings auto-save for each platform.</p>
     </div>
   );
 };

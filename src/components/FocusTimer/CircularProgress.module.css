@@ -1,3 +1,4 @@
+/* Container */
 .container {
   position: relative;
   display: inline-flex;
@@ -5,6 +6,7 @@
   align-items: center;
 }
 
+/* SVG Elements */
 .svg {
   transform: rotate(-90deg);
 }
@@ -19,6 +21,7 @@
   transition: stroke-dashoffset 0.3s ease;
 }
 
+/* Center Content */
 .centerContent {
   position: absolute;
   top: 50%;
@@ -34,6 +37,7 @@
   text-align: center;
 }
 
+/* Time Display */
 .percentage {
   font-size: 2rem;
   font-weight: 600;
@@ -42,12 +46,7 @@
   letter-spacing: -0.02em;
 }
 
-@media (prefers-color-scheme: dark) {
-  .percentage {
-    color: #f9fafb;
-  }
-}
-
+/* Complete State */
 .completeIcon {
   font-size: 4rem;
   font-weight: 700;
@@ -55,6 +54,7 @@
   animation: scaleIn 0.3s ease-out;
 }
 
+/* Animations */
 @keyframes scaleIn {
   0% {
     transform: scale(0);
@@ -64,5 +64,12 @@
   }
   100% {
     transform: scale(1);
+  }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  .percentage {
+    color: #f9fafb;
   }
 }

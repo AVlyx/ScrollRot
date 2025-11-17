@@ -1,3 +1,4 @@
+/* Panel Container */
 .panel {
   width: 100%;
   max-width: 360px;
@@ -7,22 +8,10 @@
   overflow: hidden;
 }
 
-@media (prefers-color-scheme: dark) {
-  .panel {
-    background: #1f2937;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  }
-}
-
+/* Header Section */
 .header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
-}
-
-@media (prefers-color-scheme: dark) {
-  .header {
-    border-bottom-color: #374151;
-  }
 }
 
 .title {
@@ -32,12 +21,7 @@
   color: #111827;
 }
 
-@media (prefers-color-scheme: dark) {
-  .title {
-    color: #f9fafb;
-  }
-}
-
+/* Content Section */
 .content {
   padding: 1.5rem;
   display: flex;
@@ -45,6 +29,7 @@
   gap: 1.25rem;
 }
 
+/* Form Fields */
 .field {
   display: flex;
   flex-direction: column;
@@ -55,12 +40,6 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
-}
-
-@media (prefers-color-scheme: dark) {
-  .label {
-    color: #d1d5db;
-  }
 }
 
 .input {
@@ -79,29 +58,11 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-  .input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-  
-  .input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  }
-}
-
+/* Info Section */
 .info {
   padding: 0.875rem;
   background: #f3f4f6;
   border-radius: 6px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .info {
-    background: #374151;
-  }
 }
 
 .infoText {
@@ -111,12 +72,7 @@
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .infoText {
-    color: #9ca3af;
-  }
-}
-
+/* Actions Section */
 .actions {
   padding: 1rem 1.5rem;
   display: flex;
@@ -124,12 +80,7 @@
   border-top: 1px solid #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  .actions {
-    border-top-color: #374151;
-  }
-}
-
+/* Buttons */
 .button {
   flex: 1;
   padding: 0.625rem 1.25rem;
@@ -156,19 +107,6 @@
   border-color: #9ca3af;
 }
 
-@media (prefers-color-scheme: dark) {
-  .cancelButton {
-    background: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-  
-  .cancelButton:hover {
-    background: #4b5563;
-    border-color: #6b7280;
-  }
-}
-
 .saveButton {
   background: #3b82f6;
   color: white;
@@ -180,12 +118,64 @@
   border-color: #2563eb;
 }
 
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
+  .panel {
+    background: #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .header {
+    border-bottom-color: #374151;
+  }
+
+  .title {
+    color: #f9fafb;
+  }
+
+  .label {
+    color: #d1d5db;
+  }
+
+  .input {
+    background: #374151;
+    border-color: #4b5563;
+    color: #f9fafb;
+  }
+
+  .input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+
+  .info {
+    background: #374151;
+  }
+
+  .infoText {
+    color: #9ca3af;
+  }
+
+  .actions {
+    border-top-color: #374151;
+  }
+
+  .cancelButton {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .cancelButton:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+  }
+
   .saveButton {
     background: #3b82f6;
     border-color: #3b82f6;
   }
-  
+
   .saveButton:hover {
     background: #2563eb;
     border-color: #2563eb;

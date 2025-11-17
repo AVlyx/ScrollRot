@@ -53,17 +53,24 @@ export function focusTimerOnChangeListener(callback: () => void): () => void {
     changes: { [key: string]: chrome.storage.StorageChange },
     areaName: string
   ) => {
-    if (areaName !== "local" || !changes.focusTimerConfig) {
+    console.log("Change detected");
+    console.log({ changes });
+    if (areaName !== "local" || !changes.focusTimer) {
       return;
     }
-    const { newValue } = changes.blockerConfigs as {
+    console.log("Change detected2");
+    const { newValue } = changes.focusTimer as {
       newValue?: FocusTimer;
     };
+    console.log({ newValue });
     if (!newValue) {
       return;
     }
+    console.log("CALLBACK CALLED");
     callback();
   };
+
+  console.log("LISTENER ADDED");
 
   chrome.storage.onChanged.addListener(callbackGuard);
 

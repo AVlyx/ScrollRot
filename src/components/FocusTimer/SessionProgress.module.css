@@ -1,3 +1,4 @@
+/* Container */
 .container {
   display: flex;
   flex-direction: column;
@@ -5,6 +6,7 @@
   width: 100%;
 }
 
+/* Session Info Bar */
 .sessionInfo {
   display: flex;
   justify-content: space-between;
@@ -17,30 +19,20 @@
   color: #111827;
 }
 
-@media (prefers-color-scheme: dark) {
-  .sessionType {
-    color: #f9fafb;
-  }
-}
-
 .sessionCount {
   font-size: 0.75rem;
   font-weight: 500;
   color: #6b7280;
 }
 
-@media (prefers-color-scheme: dark) {
-  .sessionCount {
-    color: #9ca3af;
-  }
-}
-
+/* Progress Bar */
 .progressBar {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
 }
 
+/* Progress Dots */
 .dot {
   width: 0.625rem;
   height: 0.625rem;
@@ -48,23 +40,32 @@
   transition: all 0.3s ease;
 }
 
-.completed {
+.dot.completed {
   background: #10b981;
   box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
 }
 
-.active {
+.dot.active {
   background: #3b82f6;
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
   transform: scale(1.2);
 }
 
-.upcoming {
+.dot.upcoming {
   background: #d1d5db;
 }
 
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
-  .upcoming {
+  .sessionType {
+    color: #f9fafb;
+  }
+
+  .sessionCount {
+    color: #9ca3af;
+  }
+
+  .dot.upcoming {
     background: #4b5563;
   }
 }

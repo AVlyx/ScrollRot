@@ -1,15 +1,25 @@
 import { getBlockerConfig } from "@/lib/storage";
 import { Blocker } from "./blocker";
+import { FocusDOM } from "../displayFocusDOM";
+
+function isOnReels(): boolean {
+  return (
+    window.location.hostname.includes("instagram.com") &&
+    window.location.pathname.includes("/reels/")
+  );
+}
 
 const PLATFORM = "reels";
-let BLOCKER: Blocker | null = null;
+let FOCUS_DOM: FocusDOM | null = null;
+
 async function loadContentScript() {
   const config = await getBlockerConfig(PLATFORM);
-  BLOCKER = new Blocker(config);
+  FOCUS_DOM = new FocusDOM(() => new Blocker(config), isOnReels);
+  await FOCUS_DOM.init();
 }
 
 loadContentScript();
 
 window.addEventListener("beforeunload", () => {
-  BLOCKER?.destroy();
+  FOCUS_DOM?.destroy();
 });

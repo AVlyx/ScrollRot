@@ -1,15 +1,26 @@
 import { getBlockerConfig } from "@/lib/storage";
 import { Blocker } from "./blocker";
+import { FocusDOM } from "../displayFocusDOM";
 
 const PLATFORM = "shorts";
-let BLOCKER: Blocker | null = null;
+
+function isOnShorts(): boolean {
+  return (
+    window.location.hostname.includes("youtube.com") &&
+    window.location.pathname.includes("/shorts/")
+  );
+}
+
+let FOCUS_DOM: FocusDOM | null = null;
+
 async function loadContentScript() {
   const config = await getBlockerConfig(PLATFORM);
-  BLOCKER = new Blocker(config);
+  FOCUS_DOM = new FocusDOM(() => new Blocker(config), isOnShorts);
+  await FOCUS_DOM.init();
 }
 
 loadContentScript();
 
 window.addEventListener("beforeunload", () => {
-  BLOCKER?.destroy();
+  FOCUS_DOM?.destroy();
 });

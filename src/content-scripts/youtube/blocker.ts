@@ -66,7 +66,7 @@ class VideoBlocker {
     this.counterElement.className = "shorts-counter-display";
     this.counterElement.style.cssText = `
       position: fixed;
-      top: 20px;
+      top: 60px;
       right: 20px;
       background: rgba(0, 0, 0, 0.8);
       color: white;
@@ -381,9 +381,16 @@ class VideoBlocker {
     }
 
     // Check if overlay already exists to prevent duplicates
-    const existingOverlay = container.querySelector(".shorts-blocker-overlay");
+    const existingOverlay = document.querySelector(".shorts-blocker-overlay");
     if (existingOverlay) {
       console.log("[YouTube Shorts Blocker] Overlay already exists, skipping");
+      return;
+    }
+
+    // Find the shorts container
+    const shortsContainer = document.getElementById("page-manager");
+    if (!shortsContainer) {
+      console.log("[YouTube Shorts Blocker] page-manager not found");
       return;
     }
 
@@ -391,9 +398,9 @@ class VideoBlocker {
     const overlay = document.createElement("div");
     overlay.className = "shorts-blocker-overlay";
     overlay.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
+      position: absolute;
+      top: 48%;
+      left: 46%;
       transform: translate(-50%, -50%);
       background: rgba(0, 0, 0, 0.8);
       color: white;
@@ -420,8 +427,14 @@ class VideoBlocker {
     overlay.appendChild(icon);
     overlay.appendChild(text);
 
-    // Append to body for fixed positioning
-    document.body.appendChild(overlay);
+    // Ensure the shorts-container has relative positioning for absolute child
+    const containerStyle = window.getComputedStyle(shortsContainer);
+    if (containerStyle.position === "static") {
+      shortsContainer.style.position = "relative";
+    }
+
+    // Append to shorts-container
+    shortsContainer.appendChild(overlay);
 
     // Update countdown
     const updateCountdown = () => {

@@ -1,3 +1,4 @@
+/* Widget Container */
 .widget {
   width: 100%;
   max-width: 360px;
@@ -7,15 +8,30 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  .widget {
-    background: #1f2937;
-  }
+/* Header Section */
+.header {
+  text-align: center;
+  margin-bottom: 0.25rem;
 }
 
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: #111827;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  font-weight: 400;
+  margin: 0;
+  color: #6b7280;
+}
+
+/* Timer Display */
 .timerContainer {
   display: flex;
   align-items: center;
@@ -23,9 +39,30 @@
   margin: 0.5rem 0;
 }
 
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Buttons */
 .buttonContainer {
   display: flex;
   gap: 0.75rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 0.5rem;
   width: 100%;
   justify-content: center;
 }
@@ -42,30 +79,16 @@
   color: #374151;
 }
 
-@media (prefers-color-scheme: dark) {
-  .button {
-    background: #374151;
-    color: #f9fafb;
-    border-color: #4b5563;
-  }
-}
-
 .button:hover {
   background: #f9fafb;
   border-color: #9ca3af;
-}
-
-@media (prefers-color-scheme: dark) {
-  .button:hover {
-    background: #4b5563;
-    border-color: #6b7280;
-  }
 }
 
 .button:active {
   transform: scale(0.98);
 }
 
+/* Button Variants */
 .startButton {
   background: #3b82f6;
   color: white;
@@ -78,18 +101,6 @@
   border-color: #2563eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  .startButton {
-    background: #3b82f6;
-    border-color: #3b82f6;
-  }
-  
-  .startButton:hover {
-    background: #2563eb;
-    border-color: #2563eb;
-  }
-}
-
 .endButton {
   background: #ef4444;
   color: white;
@@ -99,68 +110,6 @@
 .endButton:hover {
   background: #dc2626;
   border-color: #dc2626;
-}
-
-@media (prefers-color-scheme: dark) {
-  .endButton {
-    background: #ef4444;
-    border-color: #ef4444;
-  }
-  
-  .endButton:hover {
-    background: #dc2626;
-    border-color: #dc2626;
-  }
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 0.25rem;
-}
-
-.title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.25rem 0;
-  color: #111827;
-}
-
-@media (prefers-color-scheme: dark) {
-  .title {
-    color: #f9fafb;
-  }
-}
-
-.subtitle {
-  font-size: 0.75rem;
-  font-weight: 400;
-  margin: 0;
-  color: #6b7280;
-}
-
-@media (prefers-color-scheme: dark) {
-  .subtitle {
-    color: #9ca3af;
-  }
-}
-
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icon {
-  font-size: 2rem;
-  margin-bottom: 0.25rem;
-}
-
-.buttonGroup {
-  display: flex;
-  gap: 0.5rem;
-  width: 100%;
-  justify-content: center;
 }
 
 .configButton {
@@ -177,12 +126,65 @@
   border-color: #4b5563;
 }
 
+/* Dark Mode */
 @media (prefers-color-scheme: dark) {
+  .widget {
+    background: #1f2937;
+  }
+
+  .title {
+    color: #f9fafb;
+  }
+
+  .subtitle {
+    color: #9ca3af;
+  }
+
+  .button {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+
+  .button:hover {
+    background: #4b5563;
+    border-color: #6b7280;
+  }
+
+  .startButton,
+  .startButton:hover,
+  .endButton,
+  .endButton:hover {
+    /* Keep same colors in dark mode for primary actions */
+    background: inherit;
+    border-color: inherit;
+  }
+
+  .startButton {
+    background: #3b82f6;
+    border-color: #3b82f6;
+  }
+
+  .startButton:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+  }
+
+  .endButton {
+    background: #ef4444;
+    border-color: #ef4444;
+  }
+
+  .endButton:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+  }
+
   .configButton {
     background: #4b5563;
     border-color: #4b5563;
   }
-  
+
   .configButton:hover {
     background: #374151;
     border-color: #374151;
