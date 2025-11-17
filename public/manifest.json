@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ScrollRot",
+  "name": "ScrollRot - Break Short Video Addiction with Delays & Focus Timer",
   "version": "1.0",
-  "description": "Help people get off short form content.",
+  "description": "Add delays between YouTube Shorts, Instagram Reels & TikTok. Includes Pomodoro timer to block distracting content.",
   "action": {
     "default_popup": "src/popupPage/index.html"
   },
