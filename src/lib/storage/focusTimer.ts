@@ -23,18 +23,18 @@ export async function clearFocusTimer() {
   await chrome.storage.local.remove("focusTimer");
 }
 
-export async function getFocusTimerConfig(): Promise<FocusTimerConfig | null> {
+export async function getFocusTimerConfig(): Promise<FocusTimerConfig> {
   try {
     const result = await chrome.storage.local.get("focusTimerConfig");
-    const focusTimerConfig = (result.focusTimerConfig ?? null) as FocusTimerConfig | null;
+    const focusTimerConfig = (result.focusTimerConfig ?? null) as FocusTimerConfig;
     if (!focusTimerConfig) {
-      return null;
+      return defaultFocusTimerConfig;
     }
     console.log({ focusTimerConfig });
     return focusTimerConfig;
   } catch (err) {
     console.error("Failed to load focusTimerConfig:", err);
-    return null;
+    return defaultFocusTimerConfig;
   }
 }
 
@@ -48,29 +48,28 @@ export const defaultFocusTimerConfig: FocusTimerConfig = {
   numberOfFocusSessions: 4,
 };
 
-export function focusTimerOnChangeListener(callback: () => void): () => void {
+export function focusTimerOnChangeListener(
+  callback: (newvalue: FocusTimer) => void,
+  onclear: () => void = () => {}
+): () => void {
   const callbackGuard = (
     changes: { [key: string]: chrome.storage.StorageChange },
     areaName: string
   ) => {
-    console.log("Change detected");
     console.log({ changes });
     if (areaName !== "local" || !changes.focusTimer) {
       return;
     }
-    console.log("Change detected2");
     const { newValue } = changes.focusTimer as {
       newValue?: FocusTimer;
     };
     console.log({ newValue });
     if (!newValue) {
-      return;
+      onclear();
+    } else {
+      callback(newValue);
     }
-    console.log("CALLBACK CALLED");
-    callback();
   };
-
-  console.log("LISTENER ADDED");
 
   chrome.storage.onChanged.addListener(callbackGuard);
 

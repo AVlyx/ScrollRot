@@ -206,18 +206,9 @@ export class FocusDOM {
   }
 
   private listenForFocusTimerUpdate() {
-    console.log("[FocusDOM] Setting up focusTimerOnChangeListener");
-    return focusTimerOnChangeListener(() => {
-      console.log("[FocusDOM] Change detected");
-      console.log("[FocusDOM] isOnPage function:", this.isOnPage);
-      console.log("[FocusDOM] isOnPage result:", this.isOnPage());
-      console.log("[FocusDOM] Current URL:", window.location.href);
-
+    return focusTimerOnChangeListener((_) => {
       if (this.isOnPage()) {
-        console.log("[FocusDOM] CALLBACK CALLED - On shorts page, checking focus DOM");
         this.condDisplayFocusDOM();
-      } else {
-        console.log("[FocusDOM] CALLBACK SKIPPED - Not on shorts page");
       }
     });
   }

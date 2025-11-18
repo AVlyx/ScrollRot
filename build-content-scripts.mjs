@@ -9,10 +9,12 @@ const contentScripts = [
   { name: "youtube", input: "src/content-scripts/youtube/youtube.ts" },
   { name: "instagram", input: "src/content-scripts/instagram/instagram.ts" },
   { name: "tiktok", input: "src/content-scripts/tiktok/tiktok.ts" },
+  { name: "badge", input: "src/service-workers/badge.ts" },
 ];
 
 async function buildAll() {
   for (const script of contentScripts) {
+    const folder = script.input.split("/")[1];
     try {
       await build({
         configFile: false,
@@ -22,7 +24,7 @@ async function buildAll() {
           },
         },
         build: {
-          outDir: "dist/content-scripts",
+          outDir: `dist/${folder}`,
           emptyOutDir: false, // Don't clear the folder between builds
           minify: false, // Keep readable for debugging
           sourcemap: false,
