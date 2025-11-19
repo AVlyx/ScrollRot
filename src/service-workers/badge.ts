@@ -1,13 +1,36 @@
 import { getFocusDataFromConfig } from "@/lib/focusTimer";
-import { focusTimerOnChangeListener, getFocusTimerConfig } from "@/lib/storage/focusTimer";
+import {
+  focusTimerOnChangeListener,
+  getFocusTimer,
+  getFocusTimerConfig,
+} from "@/lib/storage/focusTimer";
 import type { FocusTimer, FocusTimerConfig } from "@/types";
-const breakArrIcons = ["🍵", "☕", "⚽", "🌻", "☀️"];
-const workIcons = ["📖", "🧾", "💻", "✒️", "📚", "📈"];
+const breakIcons = ["🍵", "☕", "⚽", "🌻", "☀️"];
+const focusIcons = ["📖", "🚀", "💻", "✒️", "📚"];
 
-var iconChangeTimeOut: number | null = null;
+const badgeAlarm = "BadgeAlarm";
 
 function rdSelectIn(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function setBreakBadge() {
+  const text = rdSelectIn(breakIcons);
+  const color = "orange";
+  chrome.action.setBadgeBackgroundColor({ color });
+  chrome.action.setBadgeText({ text });
+}
+
+function setFocusBadge() {
+  const text = rdSelectIn(focusIcons);
+  const color = "#2c7ebdff";
+  chrome.action.setBadgeBackgroundColor({ color });
+  chrome.action.setBadgeText({ text });
+}
+
+function clearBadge() {
+  const text = "";
+  chrome.action.setBadgeText({ text });
 }
 
 const handleFocusSessionTypeChange = (focusTimer: FocusTimer, config: FocusTimerConfig) => {
@@ -16,19 +39,17 @@ const handleFocusSessionTypeChange = (focusTimer: FocusTimer, config: FocusTimer
     return;
   }
   if (timerData.type == "break") {
-    const text = rdSelectIn(breakArrIcons);
-    chrome.action.setBadgeText({ text });
+    setBreakBadge();
   } else if (timerData.type == "focus") {
-    const text = rdSelectIn(workIcons);
-    chrome.action.setBadgeText({ text });
+    setFocusBadge();
+    console.log("focus badge set");
   } else {
     console.log("[ScrollRot] Someone cooked here");
   }
 
-  iconChangeTimeOut = setTimeout(
-    () => handleFocusSessionTypeChange(focusTimer, config),
-    timerData.sessionDuration + 100
-  );
+  const when = Date.now() + timerData.timeRemaining + 100;
+  console.log(timerData.timeRemaining + 100);
+  chrome.alarms.create(badgeAlarm, { when });
 };
 
 const newTimerLaunched = async (newValue: FocusTimer) => {
@@ -37,9 +58,35 @@ const newTimerLaunched = async (newValue: FocusTimer) => {
 };
 
 focusTimerOnChangeListener(newTimerLaunched, () => {
-  if (iconChangeTimeOut !== null) {
-    clearTimeout(iconChangeTimeOut);
-    iconChangeTimeOut = null;
-  }
-  chrome.action.setBadgeText({ text: "" });
+  chrome.alarms.clear(badgeAlarm);
+  clearBadge();
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  const callback = async () => {
+    if (alarm.name !== badgeAlarm) {
+      return;
+    }
+    const focusTimer: FocusTimer | null = await getFocusTimer();
+    if (focusTimer == null) {
+      clearBadge();
+      return;
+    }
+    const config = await getFocusTimerConfig();
+    handleFocusSessionTypeChange(focusTimer, config);
+  };
+  callback();
+});
+
+chrome.runtime.onStartup.addListener(async () => {
+  const callback = async () => {
+    const focusTimer: FocusTimer | null = await getFocusTimer();
+    if (focusTimer == null) {
+      clearBadge();
+      return;
+    }
+    const config = await getFocusTimerConfig();
+    handleFocusSessionTypeChange(focusTimer, config);
+  };
+  callback();
 });

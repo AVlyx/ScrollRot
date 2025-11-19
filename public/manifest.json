@@ -13,7 +13,7 @@
     "48": "assets/icon_48.png",
     "128": "assets/icon_128.png"
   },
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms"],
   "content_security_policy": {
     "extension_pages": "script-src 'self'"
   },
