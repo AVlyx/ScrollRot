@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ScrollRot Promo - Delay Feature</title>
+    <title>ScrollRot Promo - Pomodoro</title>
     <style>
       * {
         margin: 0;
@@ -17,7 +17,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #5861de 0%, #1d8fd2 100%);
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
         padding: 60px;
         position: relative;
@@ -28,52 +28,60 @@
       body::before {
         content: "";
         position: absolute;
-        width: 300px;
-        height: 300px;
-        background: rgba(255, 255, 255, 0.1);
+        width: 320px;
+        height: 320px;
+        background: rgba(255, 255, 255, 0.15);
         border-radius: 50%;
-        top: -100px;
-        right: -100px;
+        top: -120px;
+        left: -120px;
       }
 
       body::after {
         content: "";
         position: absolute;
-        width: 200px;
-        height: 200px;
-        background: rgba(255, 255, 255, 0.08);
+        width: 220px;
+        height: 220px;
+        background: rgba(255, 255, 255, 0.12);
         border-radius: 50%;
-        bottom: -80px;
-        left: -80px;
+        bottom: -90px;
+        right: -90px;
       }
 
       .bubble {
         position: absolute;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.06);
+        background: rgba(255, 255, 255, 0.08);
       }
 
       .bubble:nth-child(1) {
-        width: 150px;
-        height: 150px;
-        top: 50%;
-        left: -75px;
+        width: 180px;
+        height: 180px;
+        top: 40%;
+        right: -90px;
       }
 
       .bubble:nth-child(2) {
-        width: 250px;
-        height: 250px;
-        bottom: 100px;
-        right: -125px;
-        background: rgba(255, 255, 255, 0.07);
+        width: 280px;
+        height: 280px;
+        bottom: 120px;
+        left: -140px;
+        background: rgba(255, 255, 255, 0.1);
       }
 
       .bubble:nth-child(3) {
-        width: 180px;
-        height: 180px;
-        top: 20%;
-        right: 15%;
-        background: rgba(255, 255, 255, 0.05);
+        width: 160px;
+        height: 160px;
+        top: 15%;
+        left: 20%;
+        background: rgba(255, 255, 255, 0.07);
+      }
+
+      .bubble:nth-child(4) {
+        width: 200px;
+        height: 200px;
+        bottom: 25%;
+        right: 25%;
+        background: rgba(255, 255, 255, 0.06);
       }
 
       .container {
@@ -85,7 +93,35 @@
         z-index: 1;
       }
 
-      .left-content {
+      .screenshot-placeholder {
+        width: 450px;
+        height: 650px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px dashed rgba(255, 255, 255, 0.4);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      }
+
+      .screenshot-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 17px;
+      }
+
+      .placeholder-text {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 24px;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .right-content {
         flex: 1;
         color: white;
       }
@@ -129,33 +165,6 @@
         font-weight: 900;
       }
 
-      .screenshot-placeholder {
-        width: 450px;
-        height: 650px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 3px dashed rgba(255, 255, 255, 0.4);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      }
-
-      .screenshot-placeholder img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 17px;
-      }
-
-      .placeholder-text {
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 24px;
-        font-weight: 600;
-      }
-
       .borderradius25 {
         border-radius: 25px;
       }
@@ -166,22 +175,23 @@
     <div class="bubble"></div>
     <div class="bubble"></div>
     <div class="bubble"></div>
+    <div class="bubble"></div>
 
     <div class="container">
-      <div class="left-content">
-        <div class="icon">⏸️</div>
-        <h1>Break the Endless Scroll</h1>
-        <div class="description">Add custom delays between every short video</div>
+      <div class="right-content">
+        <div class="icon">🍅</div>
+        <h1>Focus Mode:<br />Zero Distractions</h1>
+        <div class="description">Complete lockout during work sessions</div>
         <ul class="features">
-          <li>Pause between Shorts, Reels & TikToks</li>
-          <li>Customizable delay duration</li>
-          <li>Break autopilot scrolling habit</li>
-          <li>Take back control of your time</li>
+          <li>Pomodoro timer with custom intervals</li>
+          <li>Blocks all short-form content</li>
+          <li>Automatic break reminders</li>
+          <li>Stay productive without temptation</li>
         </ul>
       </div>
       <img
-        src="./screenshots/pausedVid.png"
-        alt="Delay Feature"
+        src="./screenshots/pomodoro.png"
+        alt="Pomodoro Timer"
         height="600px"
         class="borderradius25"
       />
