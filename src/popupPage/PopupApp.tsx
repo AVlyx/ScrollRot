@@ -20,7 +20,7 @@ const PopupApp: React.FC = () => {
         <div className={styles.banner}>
           <h2 className={styles.bannerTitle}>✨ Thank you for using ScrollRot!</h2>
           <p className={styles.bannerText}>
-            I'd love to hear from you! If you have feature requests or feedback, please reach out to{" "}
+            If you want to help me, please leave a review on the Chrome Web Store. Contact me at{" "}
             <a
               href={`mailto:${email}`}
               className={styles.emailLink}

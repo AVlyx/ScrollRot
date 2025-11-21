@@ -42,7 +42,7 @@ const BlockerConfigurers: React.FC = () => {
 
   const platformIcons: Record<Platform, string> = {
     shorts: "🎬",
-    reels: "📱",
+    reels: "📸",
     tiktok: "🎵",
   };
 

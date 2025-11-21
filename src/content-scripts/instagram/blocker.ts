@@ -19,7 +19,9 @@ interface BlockedReel {
 function isOnReels(): boolean {
   return (
     window.location.hostname.includes("instagram.com") &&
-    window.location.pathname.includes("/reels/")
+    (window.location.pathname.includes("/reels/") ||
+      window.location.pathname.includes("/p/") ||
+      window.location.pathname.includes("/explore/"))
   );
 }
 
