@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "archiver": "^7.0.1",
     "firebase": "^12.4.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
@@ -13,6 +14,7 @@
     "build:app": "vite build --config vite.config.ts",
     "build:content": "node build-content-scripts.mjs",
     "build": "npm run build:app && npm run build:content",
+    "zip": "node zipDist.mjs",
     "screenpromo:marquee": "npx capture-website assets/marquee-promo.html --width=1400 --height=560 --output=assets/marquee-promo.png --overwrite --scale-factor=1",
     "screenpromo:small": "npx capture-website assets/small-promo.html --width=440 --height=280 --output=assets/small-promo.png --overwrite --scale-factor=1",
     "screenpromo:p1": "npx capture-website assets/p1.html --width=1280 --height=800 --output=assets/p1.png --overwrite --scale-factor=1",
