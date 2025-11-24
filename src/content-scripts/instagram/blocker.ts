@@ -403,9 +403,11 @@ class VideoBlocker {
     min-width: 200px;
   `;
 
-    const pauseIcon = document.createElement("span");
-    pauseIcon.textContent = "⏸️";
-    pauseIcon.style.fontSize = "28px";
+    const pauseIcon = document.createElement("img");
+    pauseIcon.src = chrome.runtime.getURL("./assets/pause.svg");
+    pauseIcon.alt = "Pause";
+    pauseIcon.style.width = "28px";
+    pauseIcon.style.height = "28px";
 
     const countdownText = document.createElement("span");
     countdownText.className = "reels-blocker-countdown";
@@ -420,9 +422,11 @@ class VideoBlocker {
     margin-top: 4px;
   `;
 
-    const reelsIcon = document.createElement("span");
-    reelsIcon.textContent = "🎬";
-    reelsIcon.style.fontSize = "17px";
+    const counterIcon = document.createElement("img");
+    counterIcon.src = chrome.runtime.getURL("./assets/video-counter.svg");
+    counterIcon.alt = "Pause";
+    counterIcon.style.width = "24px";
+    counterIcon.style.height = "24px";
 
     const counterText = document.createElement("span");
     counterText.className = "reels-counter-text";
@@ -432,7 +436,7 @@ class VideoBlocker {
     opacity: 0.8;
   `;
 
-    counterContainer.appendChild(reelsIcon);
+    counterContainer.appendChild(counterIcon);
     counterContainer.appendChild(counterText);
 
     overlay.appendChild(pauseIcon);

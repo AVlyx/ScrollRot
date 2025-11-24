@@ -17,6 +17,16 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/pause.svg", "assets/video-counter.svg"],
+      "matches": [
+        "https://www.instagram.com/*",
+        "https://www.youtube.com/*",
+        "https://www.tiktok.com/*"
+      ]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["https://www.youtube.com/*"],
