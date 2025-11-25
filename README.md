@@ -1,84 +1,104 @@
-⏱️ STOP ENDLESS SCROLLING. RECLAIM YOUR TIME.
+![Chrome Web Store](https://img.shields.io/chrome-web-store/v/onnoadnheeagpgnlohcidaadlojgpdhd)
 
-ScrollRot adds mandatory delays between YouTube Shorts, TikTok videos, and Instagram Reels - giving you control over your screen time and breaking the infinite scroll addiction.
+<!-- ![Stars](https://img.shields.io/github/stars/AVlyx/ScrollRot?style=social) I might need at least one for that badge lol -->
 
-🎯 KEY FEATURES
+# ScrollRot – Delay Short Videos on YouTube Shorts, TikTok, and Instagram Reels
 
-⏸️ Custom Video Delays
-Add a pause between each short video on YouTube Shorts, TikTok, and Instagram Reels. Choose your delay duration to:
+**ScrollRot** is a productivity-focused Chrome extension that inserts a mandatory delay between short-form videos on **YouTube Shorts**, **TikTok**, and **Instagram Reels**. It helps reduce endless scrolling, cut screen time, and support digital detox habits.
 
-- Break the autopilot scrolling habit
-- Give yourself time to decide if you want to continue
-- Prevent mindless binge-watching
-- Reduce daily screen time by hours
+If you struggle with doomscrolling or want a tool to slow down addictive short-video feeds, ScrollRot gives you back control.
 
-📊 Usage Tracking
-See exactly how many Reels, Shorts, and TikToks you watch:
+## Screenshots (Chrome Web Store assets)
 
-- Real-time counter shows videos watched today
-- Stay accountable to your screen time goals
+<img src="assets/p1.png" width="600" />
+<img src="assets/p2.png" width="600" />
+<img src="assets/p3.png" width="600" />
 
-🍅 Pomodoro Focus Mode
-Complete lockout of YouTube Shorts, TikTok, and Instagram Reels during work sessions:
+## Key Features
 
-- Set custom focus intervals (25min, 50min, or custom)
-- Automatic break reminders
-- Stay productive without temptation
-- Build better digital habits
+### ⏳ Delay Between Reels, Shorts, and TikTok
 
-✅ WORKS ON
+Insert an intentional pause between short videos to:
 
-- YouTube Shorts
-- TikTok
-- Instagram Reels
+- Break the infinite-scroll habit
+- Reduce binge-watching loops
+- Give yourself a moment to stop or continue
+- Bring awareness to short-video consumption
 
-💡 WHY YOU NEED SCROLLROT
+### 📊 Daily Short-Video Usage Tracking
 
-Short-form video platforms are engineered to keep you scrolling for hours. The autoplay feature removes any friction, making it nearly impossible to stop.
+See exactly how much short-form content you watch each day:
 
-ScrollRot fights back by adding intentional pauses - giving your brain a chance to break free from the dopamine loop.
+- Real-time counter for Shorts/TikTok/Reels
+- Helpful for digital detox and screen-time reduction goals
+- Fully offline, local-only stats (coming soon?)
+
+### 🎯 Built-in Pomodoro Focus Mode
+
+Block all short-form video feeds during focus sessions:
+
+- Custom focus intervals (e.g., 25 or 50 minutes)
+- Automatic breaks (TODO add sound?)
+- Reduced temptation while studying or working
+
+---
+
+## Supported Platforms
+
+ScrollRot currently supports:
+
+- **YouTube Shorts**
+- **TikTok**
+- **Instagram Reels**
+
+## Why ScrollRot Exists
+
+Short-form platforms use autoplay, infinite scroll, and algorithmic loops designed to keep you hooked. ScrollRot adds friction so you can stay mindful instead of getting pulled into a passive binge.
 
 Perfect for:
-✓ Students struggling with study distractions
-✓ Professionals losing work hours to social media
-✓ Anyone trying to reduce phone addiction
-✓ People practicing digital minimalism and digital detox
-✓ Parents wanting to limit their own screen time
 
-🔒 PRIVACY GUARANTEED
+- Students staying focused while studying
+- Professionals improving productivity at work
+- Anyone reducing TikTok, Shorts, or Reels screen time
+- Digital minimalists and digital detox enthusiasts
+- Parents managing their own habits
 
-- Zero data collection - all stats stored locally only
-- No tracking or analytics sent to servers
-- Works completely offline
-- No account required
-- Open source (coming soon)
+## Privacy & Security
 
-📊 TAKE BACK YOUR TIME
+ScrollRot is built with privacy in mind:
 
-The average person spends 2+ hours daily on short-form video content. That's 730 hours per year - over 30 full days.
+- No data collection
+- No analytics or remote servers
+- All stats remain offline on your device
+- No account or login needed
+- Open source project
 
-What could you do with an extra month every year?
+## Impact & Results
 
-With ScrollRot's usage tracking, you'll see exactly how many videos you're watching and watch that number drop as you build healthier habits.
+<!-- Users report: -->
 
-⭐ PROVEN RESULTS
+The only user reports (me):
 
-Users report (me, the only user, reports):
+- **50–70% less time on Shorts/Reels/TikTok**
+- Improved focus and deeper work sessions
+- Better sleep by cutting late-night scrolling
+- More free time for hobbies and relationships
+- Increased awareness of daily digital habits
+<!-- - I still don't have time for exams as I am writing a README instead. -->
 
-- 50-70% reduction in social media time
-- Better focus during work/study sessions
-- Improved sleep (less late-night scrolling)
-- More time for hobbies, exercise, and relationships
-- Eye-opening awareness from seeing their actual usage stats
+## Installation
 
-🚀 GET STARTED IN SECONDS
+1. Install ScrollRot from the Chrome Web Store
+2. Choose your delay duration
+3. Browse Shorts, Reels, or TikTok like normal
+4. Check the stats panel anytime (coming soon? eventually?)
+5. Enable Pomodoro mode during focus sessions
 
-1. Install ScrollRot
-2. Set your preferred delay time (or use defaults)
-3. Check your stats to see current usage
-4. Enable Pomodoro mode when you need to focus
-5. Watch your video count drop and productivity soar
+## Support
 
-Need help? Have suggestions? Contact us at [your email/support link]
+Have feedback or feature ideas?  
+Open an issue or contact: **vawolyx@gmail.com**
 
-Break free from scroll addiction. Install ScrollRot today.
+## Break the Doomscrolling Habit
+
+Give yourself control back. Install ScrollRot and slow down Reels, Shorts, and TikTok today.
