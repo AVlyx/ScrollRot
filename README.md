@@ -2,7 +2,7 @@
 
 <!-- ![Stars](https://img.shields.io/github/stars/AVlyx/ScrollRot?style=social) I might need at least one for that badge lol -->
 
-# ScrollRot – Delay Short Videos on YouTube Shorts, TikTok, and Instagram Reels
+# [ScrollRot](https://chromewebstore.google.com/detail/scrollrot/onnoadnheeagpgnlohcidaadlojgpdhd) – Delay Short Videos on YouTube Shorts, TikTok, and Instagram Reels
 
 **ScrollRot** is a productivity-focused Chrome extension that inserts a mandatory delay between short-form videos on **YouTube Shorts**, **TikTok**, and **Instagram Reels**. It helps reduce endless scrolling, cut screen time, and support digital detox habits.
 
@@ -101,4 +101,4 @@ Open an issue or contact: **vawolyx@gmail.com**
 
 ## Break the Doomscrolling Habit
 
-Give yourself control back. Install ScrollRot and slow down Reels, Shorts, and TikTok today.
+Give yourself control back. Install [ScrollRot](https://chromewebstore.google.com/detail/scrollrot/onnoadnheeagpgnlohcidaadlojgpdhd) and slow down Reels, Shorts, and TikTok today.
