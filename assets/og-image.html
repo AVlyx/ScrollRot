@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ScrollRot OG Image - 1200x630</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1200px;
+        height: 630px;
+        background: linear-gradient(135deg, #2970b3 0%, #afd2e9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 60px 80px;
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+      }
+
+      body::before {
+        content: "";
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 50%;
+        top: -150px;
+        right: -100px;
+      }
+
+      body::after {
+        content: "";
+        position: absolute;
+        width: 350px;
+        height: 350px;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 50%;
+        bottom: -100px;
+        left: -80px;
+      }
+
+      .content-left {
+        flex: 1;
+        z-index: 1;
+        max-width: 650px;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .icon-large {
+        font-size: 80px;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+      }
+
+      .title-large {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        font-size: 56px;
+        font-weight: 800;
+        color: white;
+        letter-spacing: -1.5px;
+        line-height: 1.1;
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+
+      .subtitle-large {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        font-size: 22px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95);
+        line-height: 1.4;
+        margin-bottom: 28px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .features {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .feature {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
+          Cantarell, sans-serif;
+        font-size: 18px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+      }
+
+      .feature-icon {
+        font-size: 22px;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+      }
+
+      .content-right {
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .platform-icons {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        background: rgba(255, 255, 255, 0.12);
+        padding: 40px 38px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      }
+
+      .platform-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .platform-logo svg {
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
+      }
+    </style>
+  </head>
+  <body>
+    <div class="content-left">
+      <div class="header">
+        <div class="icon-large">⏳</div>
+        <div class="title-large">ScrollRot</div>
+      </div>
+      <div class="subtitle-large">
+        Break free from endless scrolling with mindful pauses between videos
+      </div>
+      <div class="features">
+        <div class="feature">
+          <span class="feature-icon">⏱️</span>
+          <span>Customizable delays between videos</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📊</span>
+          <span>Track your usage on each platform</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🧘</span>
+          <span>Build healthier digital habits</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🆓</span>
+          <span>Free Chrome Extension</span>
+        </div>
+      </div>
+    </div>
+    <div class="content-right">
+      <div class="platform-icons">
+        <!-- YouTube Logo -->
+        <div class="platform-logo">
+          <svg
+            width="85"
+            height="60"
+            viewBox="0 0 159 110"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M154 17.5C154 17.5 152.5 7.75 147.75 3C142 -2.75 135.5 -2.75 132.5 -3C110.5 -4.5 79.5 -4.5 79.5 -4.5C79.5 -4.5 48.5 -4.5 26.5 -3C23.5 -2.75 17 -2.75 11.25 3C6.5 7.75 5 17.5 5 17.5C5 17.5 0 29.25 0 41V53C0 64.75 5 76.5 5 76.5C5 76.5 6.5 86.25 11.25 91C17 96.75 24.5 96.5 27.75 97.25C39.5 98.5 79.5 98.75 79.5 98.75C79.5 98.75 110.5 98.75 132.5 97.25C135.5 97 142 97 147.75 91.25C152.5 86.5 154 76.75 154 76.75C154 76.75 159 65 159 53.25V41.25C159 29.5 154 17.5 154 17.5Z"
+              fill="white"
+              opacity="0.7"
+            />
+            <path d="M63 70.5V23.5L105 47L63 70.5Z" fill="#667EEA" opacity="0.7" />
+            <!-- Diagonal slash -->
+            <line
+              x1="10"
+              y1="95"
+              x2="149"
+              y2="-5"
+              stroke="white"
+              stroke-width="12"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+
+        <!-- Instagram Logo -->
+        <div class="platform-logo">
+          <svg
+            width="60"
+            height="60"
+            viewBox="0 0 132 132"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <rect
+              x="6"
+              y="6"
+              width="120"
+              height="120"
+              rx="30"
+              stroke="white"
+              stroke-width="12"
+              fill="none"
+              opacity="0.7"
+            />
+            <circle
+              cx="66"
+              cy="66"
+              r="28"
+              stroke="white"
+              stroke-width="10"
+              fill="none"
+              opacity="0.7"
+            />
+            <circle cx="100" cy="32" r="8" fill="white" opacity="0.7" />
+            <!-- Diagonal slash -->
+            <line
+              x1="10"
+              y1="122"
+              x2="122"
+              y2="10"
+              stroke="white"
+              stroke-width="12"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+
+        <!-- TikTok Logo -->
+        <div class="platform-logo">
+          <svg
+            width="52"
+            height="60"
+            viewBox="0 0 118 132"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M87 6C87 6 86 19 87 27C88 36 93 43 100 47C107 51 116 51 116 51V73C116 73 106 74 99 72C92 70 87 65 87 65V94C87 94 88 105 82 113C76 121 67 127 55 127C43 127 34 121 28 113C22 105 21 94 21 94C21 94 19 83 25 75C31 67 40 61 52 61C52 61 61 60 67 63V84C67 84 64 82 60 81C56 80 52 81 48 83C44 85 41 89 40 93C39 97 39 101 41 105C43 109 47 112 52 113C57 114 62 113 66 109C70 105 71 99 71 99V6H87Z"
+              fill="white"
+              opacity="0.7"
+            />
+            <!-- Diagonal slash -->
+            <line
+              x1="15"
+              y1="127"
+              x2="110"
+              y2="6"
+              stroke="white"
+              stroke-width="12"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
