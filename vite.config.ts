@@ -11,6 +11,7 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
+    minify: true,
     rollupOptions: {
       input: {
         popup: resolve(__dirname, "src/popupPage/index.html"),

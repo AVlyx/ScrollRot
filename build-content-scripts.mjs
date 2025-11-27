@@ -26,7 +26,7 @@ async function buildAll() {
         build: {
           outDir: `dist/${folder}`,
           emptyOutDir: false, // Don't clear the folder between builds
-          minify: false, // Keep readable for debugging
+          minify: true, // Keep readable for debugging
           sourcemap: false,
           copyPublicDir: false,
 
