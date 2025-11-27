@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "dependencies": {
+    "@preact/compat": "^18.3.1",
     "archiver": "^7.0.1",
     "firebase": "^12.4.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "preact": "^10.27.2"
   },
   "scripts": {
     "dev": "vite --config vite.config.ts",
@@ -38,7 +38,8 @@
     "globals": "^16.4.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
-    "vite": "npm:rolldown-vite@7.1.14"
+    "vite": "npm:rolldown-vite@7.1.14",
+    "@preact/preset-vite": "^2.10.2"
   },
   "overrides": {
     "vite": "npm:rolldown-vite@7.1.14"
