@@ -1,5 +1,9 @@
 ![Chrome Web Store](https://img.shields.io/chrome-web-store/v/onnoadnheeagpgnlohcidaadlojgpdhd)
 
+## For Reviewer
+
+To run the code check [README_REVIEWER.md](./README_REVIEWER.md)
+
 <!-- ![Stars](https://img.shields.io/github/stars/AVlyx/ScrollRot?style=social) I might need at least one for that badge lol -->
 
 # [ScrollRot](https://chromewebstore.google.com/detail/scrollrot/onnoadnheeagpgnlohcidaadlojgpdhd) – Delay Short Videos on YouTube Shorts, TikTok, and Instagram Reels
