@@ -1,8 +1,12 @@
 {
+  "name": "ScrollRot - Delays on short-form feeds",
   "browser_specific_settings": {
     "gecko": {
       "id": "scrollrot@scrollrot.net",
-      "strict_min_version": "109.0"
+      "strict_min_version": "126.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "background": {

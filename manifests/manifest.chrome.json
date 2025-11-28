@@ -1,4 +1,5 @@
 {
+  "name": "ScrollRot - Break Short Video Addiction with Delays & Focus Timer",
   "background": {
     "service_worker": "service-workers/badge.js"
   }
