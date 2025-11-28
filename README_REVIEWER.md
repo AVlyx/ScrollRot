@@ -16,7 +16,7 @@ git clone https://github.com/AVlyx/ScrollRot.git
 
 ## Build Instructions
 
-1. Make sure you have **Node.js** and **npm** installed:
+1. **Node.js** and **npm** versions:
 
 ```bash
 node --version   # v22.19.0
@@ -32,13 +32,18 @@ npm install
 3. Build the extension:
 
 ```bash
-npm run build
+npm run build:firefox   # Firefox
+npm run build:chrome    # Chrome
+npm run build           # Both
 ```
 
-The built extension can then be loaded into Firefox for testing or submission.
+The built extension can then be loaded into Firefox or Chrome for testing.
+
+- Firefox code is located in `distFirefox`
+- Chrome code is located in `distChrome`
 
 ---
 
 ## Platform Compatibility
 
-Developed and tested on Windows
+Developed and tested on Windows.
