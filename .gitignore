@@ -26,4 +26,8 @@ dist-ssr
 *.sln
 *.sw?
 
-ScrollRot.zip
+# Build outputs
+distChrome/
+distFirefox/
+ScrollRot-chrome.zip
+ScrollRot-firefox.zip

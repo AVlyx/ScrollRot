@@ -2,13 +2,17 @@
 import fs from "fs";
 import archiver from "archiver";
 
-const zipFile = "ScrollRot.zip";
-const folderToZip = "dist";
+// Get browser from command line arg or default to chrome
+const targetBrowser = process.argv[2] || 'chrome';
+const folderToZip = targetBrowser === 'firefox' ? 'distFirefox' : 'distChrome';
+const zipFile = `ScrollRot-${targetBrowser}.zip`;
+
+console.log(`📦 Zipping ${folderToZip} for ${targetBrowser.toUpperCase()}...`);
 
 // Delete existing zip if it exists
 if (fs.existsSync(zipFile)) {
   fs.unlinkSync(zipFile);
-  console.log(`${zipFile} deleted.`);
+  console.log(`✨ ${zipFile} deleted.`);
 }
 
 // Create a file to stream archive data to.
@@ -17,7 +21,7 @@ const archive = archiver("zip", { zlib: { level: 9 } });
 
 // Listen for all archive data to be written
 output.on("close", () => {
-  console.log(`${folderToZip} zipped into ${zipFile} (${archive.pointer()} total bytes)`);
+  console.log(`✅ ${folderToZip} zipped into ${zipFile} (${archive.pointer()} total bytes)`);
 });
 
 // Good practice to catch warnings and errors

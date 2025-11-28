@@ -1,4 +1,5 @@
 import { type Platform } from "@/types";
+import Browser from "webextension-polyfill";
 
 interface WatchedData {
   count: number;
@@ -27,12 +28,12 @@ export async function setNumberWatchedShortVids(platform: Platform, watched: num
     count: watched,
     lastResetDate: getResetDate(),
   };
-  await chrome.storage.local.set({ [`nwatched${platform}`]: data });
+  await Browser.storage.local.set({ [`nwatched${platform}`]: data });
 }
 
 export async function getNumberWatchedShortVids(platform: Platform): Promise<number> {
   try {
-    const result = await chrome.storage.local.get(`nwatched${platform}`);
+    const result = await Browser.storage.local.get(`nwatched${platform}`);
     const data = result[`nwatched${platform}`] as WatchedData | null | undefined;
 
     // Handle new format

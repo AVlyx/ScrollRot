@@ -1,8 +1,9 @@
 import type { FocusTimer, FocusTimerConfig } from "@/types";
+import Browser from "webextension-polyfill";
 
 export async function getFocusTimer(): Promise<FocusTimer | null> {
   try {
-    const result = await chrome.storage.local.get("focusTimer");
+    const result = await Browser.storage.local.get("focusTimer");
     const focusTimer = (result.focusTimer ?? null) as FocusTimer | null;
     if (!focusTimer) {
       return null;
@@ -16,16 +17,16 @@ export async function getFocusTimer(): Promise<FocusTimer | null> {
 }
 
 export async function setFocusTimer(focusTimer: FocusTimer) {
-  await chrome.storage.local.set({ focusTimer });
+  await Browser.storage.local.set({ focusTimer });
 }
 
 export async function clearFocusTimer() {
-  await chrome.storage.local.remove("focusTimer");
+  await Browser.storage.local.remove("focusTimer");
 }
 
 export async function getFocusTimerConfig(): Promise<FocusTimerConfig> {
   try {
-    const result = await chrome.storage.local.get("focusTimerConfig");
+    const result = await Browser.storage.local.get("focusTimerConfig");
     const focusTimerConfig = (result.focusTimerConfig ?? null) as FocusTimerConfig;
     if (!focusTimerConfig) {
       return defaultFocusTimerConfig;
@@ -39,7 +40,7 @@ export async function getFocusTimerConfig(): Promise<FocusTimerConfig> {
 }
 
 export async function setFocusTimerConfig(focusTimerConfig: FocusTimerConfig) {
-  await chrome.storage.local.set({ focusTimerConfig });
+  await Browser.storage.local.set({ focusTimerConfig });
 }
 
 export const defaultFocusTimerConfig: FocusTimerConfig = {
@@ -53,7 +54,7 @@ export function focusTimerOnChangeListener(
   onclear: () => void = () => {}
 ): () => void {
   const callbackGuard = (
-    changes: { [key: string]: chrome.storage.StorageChange },
+    changes: { [key: string]: Browser.Storage.StorageChange },
     areaName: string
   ) => {
     console.log({ changes });
@@ -71,7 +72,7 @@ export function focusTimerOnChangeListener(
     }
   };
 
-  chrome.storage.onChanged.addListener(callbackGuard);
+  Browser.storage.onChanged.addListener(callbackGuard);
 
-  return () => chrome.storage.onChanged.removeListener(callbackGuard);
+  return () => Browser.storage.onChanged.removeListener(callbackGuard);
 }

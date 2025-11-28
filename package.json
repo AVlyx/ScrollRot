@@ -5,14 +5,17 @@
   "type": "module",
   "dependencies": {
     "@preact/compat": "^18.3.1",
-    "preact": "^10.27.2"
+    "preact": "^10.27.2",
+    "webextension-polyfill": "^0.12.0"
   },
   "scripts": {
     "dev": "vite --config vite.config.ts",
-    "build:app": "vite build --config vite.config.ts",
-    "build:content": "node build-content-scripts.mjs",
-    "build": "npm run build:app && npm run build:content",
-    "zip": "node zipDist.mjs",
+    "build:chrome": "node build.mjs chrome",
+    "build:firefox": "node build.mjs firefox",
+    "build": "npm run build:chrome && npm run build:firefox",
+    "zip:chrome": "node zipDist.mjs chrome",
+    "zip:firefox": "node zipDist.mjs firefox",
+    "zip": "npm run zip:chrome && npm run zip:firefox",
     "screenpromo:marquee": "npx capture-website assets/marquee-promo.html --width=1400 --height=560 --output=assets/marquee-promo.png --overwrite --scale-factor=1",
     "screenpromo:small": "npx capture-website assets/small-promo.html --width=440 --height=280 --output=assets/small-promo.png --overwrite --scale-factor=1",
     "screenpromo:og": "npx capture-website assets/og-image.html --width=1200 --height=630 --output=website/assets/og-image.png --overwrite --scale-factor=1",
@@ -29,6 +32,7 @@
     "@types/node": "^24.6.0",
     "@types/react": "^19.1.16",
     "@types/react-dom": "^19.1.9",
+    "@types/webextension-polyfill": "^0.12.1",
     "@vitejs/plugin-react": "^5.0.4",
     "archiver": "^7.0.1",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",

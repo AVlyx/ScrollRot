@@ -5,6 +5,7 @@ import {
   getFocusTimerConfig,
 } from "@/lib/storage/focusTimer";
 import type { FocusTimer, FocusTimerConfig } from "@/types";
+import Browser from "webextension-polyfill";
 const breakIcons = ["🍵", "☕", "⚽", "🌻", "☀️"];
 const focusIcons = ["📖", "🚀", "💻", "✒️", "📚"];
 
@@ -17,20 +18,20 @@ function rdSelectIn(arr: string[]): string {
 function setBreakBadge() {
   const text = rdSelectIn(breakIcons);
   const color = "orange";
-  chrome.action.setBadgeBackgroundColor({ color });
-  chrome.action.setBadgeText({ text });
+  Browser.action.setBadgeBackgroundColor({ color });
+  Browser.action.setBadgeText({ text });
 }
 
 function setFocusBadge() {
   const text = rdSelectIn(focusIcons);
   const color = "#2c7ebdff";
-  chrome.action.setBadgeBackgroundColor({ color });
-  chrome.action.setBadgeText({ text });
+  Browser.action.setBadgeBackgroundColor({ color });
+  Browser.action.setBadgeText({ text });
 }
 
 function clearBadge() {
   const text = "";
-  chrome.action.setBadgeText({ text });
+  Browser.action.setBadgeText({ text });
 }
 
 const handleFocusSessionTypeChange = (focusTimer: FocusTimer, config: FocusTimerConfig) => {
@@ -49,7 +50,7 @@ const handleFocusSessionTypeChange = (focusTimer: FocusTimer, config: FocusTimer
 
   const when = Date.now() + timerData.timeRemaining + 100;
   console.log(timerData.timeRemaining + 100);
-  chrome.alarms.create(badgeAlarm, { when });
+  Browser.alarms.create(badgeAlarm, { when });
 };
 
 const newTimerLaunched = async (newValue: FocusTimer) => {
@@ -58,11 +59,11 @@ const newTimerLaunched = async (newValue: FocusTimer) => {
 };
 
 focusTimerOnChangeListener(newTimerLaunched, () => {
-  chrome.alarms.clear(badgeAlarm);
+  Browser.alarms.clear(badgeAlarm);
   clearBadge();
 });
 
-chrome.alarms.onAlarm.addListener((alarm) => {
+Browser.alarms.onAlarm.addListener((alarm) => {
   const callback = async () => {
     if (alarm.name !== badgeAlarm) {
       return;
@@ -78,7 +79,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   callback();
 });
 
-chrome.runtime.onStartup.addListener(async () => {
+Browser.runtime.onStartup.addListener(async () => {
   const callback = async () => {
     const focusTimer: FocusTimer | null = await getFocusTimer();
     if (focusTimer == null) {

@@ -1,9 +1,10 @@
 import React from "react";
 import styles from "./OpenSettingsButton.module.css";
+import Browser from "webextension-polyfill";
 
 const OpenSettingsButton: React.FC = () => {
   const handleClick = (): void => {
-    chrome.runtime.openOptionsPage();
+    Browser.runtime.openOptionsPage();
   };
 
   return (

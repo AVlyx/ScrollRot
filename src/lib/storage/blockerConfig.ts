@@ -5,10 +5,11 @@ import {
   type BlockerConfig,
   type Platform,
 } from "@/types";
+import Browser from "webextension-polyfill";
 
 export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
   try {
-    const result = await chrome.storage.local.get("blockerConfigs");
+    const result = await Browser.storage.local.get("blockerConfigs");
     const blockerConfigs = (result.blockerConfigs ?? null) as AllBlockerConfigs | null;
     if (!blockerConfigs) {
       return null;
@@ -29,7 +30,7 @@ export async function getBlockerConfig(platform: Platform): Promise<BlockerConfi
 }
 
 export async function setAllBlockerConfig(allConfig: AllBlockerConfigs) {
-  await chrome.storage.local.set({ blockerConfigs: allConfig });
+  await Browser.storage.local.set({ blockerConfigs: allConfig });
 }
 
 export function blockerConfigOnChangeListener(
@@ -37,7 +38,7 @@ export function blockerConfigOnChangeListener(
   callback: (config: BlockerConfig) => void
 ): () => void {
   const callbackGuard = (
-    changes: { [key: string]: chrome.storage.StorageChange },
+    changes: { [key: string]: Browser.Storage.StorageChange },
     areaName: string
   ) => {
     if (areaName !== "local" || !changes.blockerConfigs) {
@@ -61,7 +62,7 @@ export function blockerConfigOnChangeListener(
     callback(newConfig);
   };
 
-  chrome.storage.onChanged.addListener(callbackGuard);
+  Browser.storage.onChanged.addListener(callbackGuard);
 
-  return () => chrome.storage.onChanged.removeListener(callbackGuard);
+  return () => Browser.storage.onChanged.removeListener(callbackGuard);
 }

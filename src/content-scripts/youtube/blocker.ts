@@ -7,6 +7,7 @@ import {
   setNumberWatchedShortVids,
 } from "@/lib/storage";
 import type { BlockerConfig } from "@/types";
+import Browser from "webextension-polyfill";
 
 function isOnShorts(): boolean {
   return (
@@ -357,7 +358,7 @@ class VideoBlocker {
     `;
 
     const pauseIcon = document.createElement("img");
-    pauseIcon.src = chrome.runtime.getURL("./assets/pause.svg");
+    pauseIcon.src = Browser.runtime.getURL("./assets/pause.svg");
     pauseIcon.alt = "Pause";
     pauseIcon.style.width = "28px";
     pauseIcon.style.height = "28px";
@@ -376,7 +377,7 @@ class VideoBlocker {
     `;
 
     const counterIcon = document.createElement("img");
-    counterIcon.src = chrome.runtime.getURL("./assets/video-counter.svg");
+    counterIcon.src = Browser.runtime.getURL("./assets/video-counter.svg");
     counterIcon.alt = "Pause";
     counterIcon.style.width = "24px";
     counterIcon.style.height = "24px";
