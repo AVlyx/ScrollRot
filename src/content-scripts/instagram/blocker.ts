@@ -266,12 +266,11 @@ class VideoBlocker {
       unblockTime: unblockTime,
     });
 
-    console.log(
-      "[Instagram Reels Blocker] Blocking video for",
-      this.config.blockDuration,
-      "ms, autoPlayAfterBlock:",
-      this.config.autoPlayAfterBlock
-    );
+    if (this.config.grayscale) {
+      video.style.filter = "grayscale(100%)";
+    } else {
+      video.style.filter = "grayscale(0%)";
+    }
 
     // Pause the video immediately
     video.pause();

@@ -30,6 +30,7 @@ class VideoBlocker {
   private touchendHandler: ((e: TouchEvent) => void) | null = null;
   private clickHandler: ((e: MouseEvent) => void) | null = null;
   private touchStartY: number = 0;
+  private mainObserver: MutationObserver | null = null;
 
   constructor(config: BlockerConfig) {
     this.config = config;
@@ -54,7 +55,129 @@ class VideoBlocker {
     // Listen for scroll events on the shorts container
     this.listenForScrollEvents();
 
+    // Watch for new elements being added to the DOM (for grayscale)
+    this.watchForNewElements();
+
+    // Apply or remove grayscale based on config
+    if (this.config.grayscale) {
+      this.applyGrayscaleToAllElements();
+    } else {
+      this.removeGrayscaleFromAllElements();
+    }
+
     console.log("[YouTube Shorts Blocker] Started successfully");
+  }
+
+  private applyGrayscaleToContainer(container: HTMLElement): void {
+    container.style.filter = "grayscale(100%)";
+    container.setAttribute("data-grayscale-container", "true");
+  }
+
+  private removeGrayscaleFromContainer(container: HTMLElement): void {
+    container.style.filter = "";
+    container.removeAttribute("data-grayscale-container");
+  }
+
+  private applyGrayscale(video: HTMLVideoElement): void {
+    video.style.filter = "grayscale(100%)";
+    video.setAttribute("data-grayscale", "true");
+  }
+
+  private removeGrayscale(video: HTMLVideoElement): void {
+    video.style.filter = "";
+    video.removeAttribute("data-grayscale");
+  }
+
+  private applyGrayscaleToAllElements(): void {
+    // Apply grayscale to videos
+    const videos = document.querySelectorAll("video");
+    videos.forEach((video) => {
+      if (!video.hasAttribute("data-grayscale")) {
+        this.applyGrayscale(video as HTMLVideoElement);
+      }
+    });
+
+    // Apply grayscale to reel-video-in-sequence-new containers
+    const reelContainers = document.querySelectorAll(".reel-video-in-sequence-thumbnail");
+    reelContainers.forEach((container) => {
+      if (!container.hasAttribute("data-grayscale-container")) {
+        this.applyGrayscaleToContainer(container as HTMLElement);
+      }
+    });
+  }
+
+  private removeGrayscaleFromAllElements(): void {
+    // Remove grayscale from videos
+    const videos = document.querySelectorAll("video[data-grayscale]");
+    videos.forEach((video) => {
+      this.removeGrayscale(video as HTMLVideoElement);
+    });
+
+    // Remove grayscale from reel-video-in-sequence-new containers
+    const reelContainers = document.querySelectorAll("[data-grayscale-container]");
+    reelContainers.forEach((container) => {
+      this.removeGrayscaleFromContainer(container as HTMLElement);
+    });
+  }
+
+  private watchForNewElements(): void {
+    this.mainObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as HTMLElement;
+
+            // Check for reel-video-in-sequence-new containers
+            if (element.classList && element.classList.contains("reel-video-in-sequence-new")) {
+              if (this.config.grayscale) {
+                this.applyGrayscaleToContainer(element);
+              } else {
+                this.removeGrayscaleFromContainer(element);
+              }
+            }
+
+            // Also check children for the class
+            const reelContainers = element.querySelectorAll(".reel-video-in-sequence-new");
+            reelContainers.forEach((container) => {
+              if (this.config.grayscale) {
+                this.applyGrayscaleToContainer(container as HTMLElement);
+              } else {
+                this.removeGrayscaleFromContainer(container as HTMLElement);
+              }
+            });
+
+            // Handle video elements
+            if (element.tagName === "VIDEO" || element.querySelector("video")) {
+              // Apply or remove grayscale based on config
+              if (element.tagName === "VIDEO") {
+                if (this.config.grayscale) {
+                  this.applyGrayscale(element as HTMLVideoElement);
+                } else {
+                  this.removeGrayscale(element as HTMLVideoElement);
+                }
+              } else {
+                const videos = element.querySelectorAll("video");
+                videos.forEach((video) => {
+                  if (this.config.grayscale) {
+                    this.applyGrayscale(video as HTMLVideoElement);
+                  } else {
+                    this.removeGrayscale(video as HTMLVideoElement);
+                  }
+                });
+              }
+            }
+          }
+        });
+      });
+    });
+
+    // Watch for new elements
+    this.mainObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: false,
+      characterData: false,
+    });
   }
 
   private listenForScrollEvents(): void {
@@ -447,6 +570,12 @@ class VideoBlocker {
       this.clickHandler = null;
     }
 
+    // Disconnect mutation observer
+    if (this.mainObserver) {
+      this.mainObserver.disconnect();
+      this.mainObserver = null;
+    }
+
     // Clear timers
     if (this.observeDebounceTimer !== null) {
       clearTimeout(this.observeDebounceTimer);
@@ -455,6 +584,9 @@ class VideoBlocker {
     if (this.currentBlockTimeout !== null) {
       clearTimeout(this.currentBlockTimeout);
     }
+
+    // Remove grayscale from all elements on destroy
+    this.removeGrayscaleFromAllElements();
 
     this.currentVideoSrc = "";
     console.log("[YouTube Shorts Blocker] Destroyed");

@@ -325,9 +325,6 @@ class VideoBlocker {
 
   private blockVideo(container: HTMLElement, video: HTMLVideoElement): void {
     const containerId = (container as any).__tiktokBlockerId || "unknown";
-    console.log(
-      `[TikTok Blocker] ========== blockVideo called for article [${containerId}] ==========`
-    );
 
     // Pause the video immediately
     if (!video.paused) {
@@ -336,6 +333,12 @@ class VideoBlocker {
       console.log("[TikTok Blocker] Video paused, currentTime:", video.currentTime);
     } else {
       console.log("[TikTok Blocker] Video already paused");
+    }
+
+    if (this.config.grayscale) {
+      video.style.filter = "grayscale(100%)";
+    } else {
+      video.style.filter = "grayscale(0%)";
     }
 
     // Reset to beginning

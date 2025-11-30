@@ -43,6 +43,16 @@ const BlockerConfigurer: React.FC<Props> = ({ config, onChange }) => {
         />
       </label>
 
+      <label className={styles.label}>
+        <span>Grayscale videos</span>
+        <input
+          type="checkbox"
+          className={styles.checkbox}
+          checked={config.grayscale}
+          onChange={(e) => onChange({ grayscale: e.target.checked })}
+        />
+      </label>
+
       <div className={styles.fieldGroup}>
         <label htmlFor="blockDuration" className={styles.fieldLabel}>
           Block duration (seconds)
