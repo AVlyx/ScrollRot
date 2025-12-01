@@ -84,6 +84,20 @@ const BlockerConfigurer: React.FC<Props> = ({ config, onChange }) => {
           )}
         </div>
       </div>
+
+      <div className={styles.fieldGroup}>
+        <label htmlFor="maxReelCount" className={styles.fieldLabel}>
+          Max videos per session
+        </label>
+        <input
+          id="maxReelCount"
+          type="number"
+          min={1}
+          className={styles.input}
+          value={config.maxReelCount}
+          onChange={(e) => onChange({ maxReelCount: Number(e.target.value) })}
+        />
+      </div>
     </div>
   );
 };

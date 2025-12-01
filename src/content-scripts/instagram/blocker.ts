@@ -7,6 +7,7 @@ import {
 } from "@/lib/storage";
 import { type BlockerConfig } from "@/types";
 import Browser from "webextension-polyfill";
+import { setReelLimitReachedDOM } from "../reelLimitReached";
 // import { condDisplayFocusDOM } from "./displayFocusDOM";
 
 //GLOBAL VARIABLES
@@ -42,9 +43,6 @@ class VideoBlocker {
   }
 
   private async init(): Promise<void> {
-    console.log("[Instagram Reels Blocker] Initializing...");
-
-    // Wait for DOM to be ready
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => this.start());
     } else {
@@ -56,10 +54,8 @@ class VideoBlocker {
   private start(): void {
     // Create intersection observer to detect when reels come into view
     this.createIntersectionObserver();
-
     // Observe existing reels once
     this.observeExistingReels();
-
     // Watch for new reels being added to the DOM
     this.watchForNewReels();
   }
@@ -75,15 +71,13 @@ class VideoBlocker {
         });
       },
       {
-        threshold: 0.5, // Trigger when 50% of the reel is visible
+        threshold: 0.5,
         rootMargin: "0px",
       }
     );
   }
 
   private observeExistingReels(): void {
-    // Instagram Reels are typically in articles or divs with specific roles
-    // The video container structure: article > div > div > video
     const reelContainers = this.findReelContainers();
 
     let newObservations = 0;
@@ -93,19 +87,8 @@ class VideoBlocker {
         this.intersectionObserver.observe(container);
         this.observedContainers.add(container);
         newObservations++;
-        console.log(
-          "[Instagram Reels Blocker] Now observing container:",
-          container.tagName,
-          container.className.substring(0, 50)
-        );
       }
     });
-
-    if (newObservations > 0) {
-      console.log(
-        `[Instagram Reels Blocker] Added ${newObservations} new containers for observation (total observed: ${this.observedContainers.size})`
-      );
-    }
   }
 
   private findReelContainers(): HTMLElement[] {
@@ -115,7 +98,6 @@ class VideoBlocker {
 
     // Method 1: Find all video elements
     const videos = document.querySelectorAll("video");
-    console.log(`[Instagram Reels Blocker] Found ${videos.length} video elements`);
 
     videos.forEach((video) => {
       // Find the closest article or main container
@@ -195,11 +177,6 @@ class VideoBlocker {
         if (this.observeDebounceTimer !== null) {
           clearTimeout(this.observeDebounceTimer);
         }
-
-        // Debounce to avoid excessive checks - only call once per batch of mutations
-        console.log(
-          "[Instagram Reels Blocker] New video elements detected in DOM, scheduling observation..."
-        );
         this.observeDebounceTimer = window.setTimeout(() => {
           this.observeDebounceTimer = null;
           this.observeExistingReels();
@@ -216,10 +193,18 @@ class VideoBlocker {
     });
   }
 
+  private updateNumberWatchedReels() {
+    this.reelsWatchedCount++;
+    setNumberWatchedShortVids("reels", this.reelsWatchedCount);
+
+    if (this.reelsWatchedCount >= this.config.maxReelCount) {
+      setReelLimitReachedDOM("reels");
+    }
+  }
+
   private handleReelInView(reelContainer: HTMLElement): void {
     // Check if this reel is already blocked or being processed
     if (this.blockedReels.has(reelContainer)) {
-      console.log("[Instagram Reels Blocker] Container already blocked, skipping");
       return;
     }
 
@@ -229,25 +214,13 @@ class VideoBlocker {
       return;
     }
 
-    // Check if we've already processed this specific video
     if (this.processedVideos.has(video)) {
-      console.log("[Instagram Reels Blocker] Video already processed, skipping");
       return;
     }
-
     this.processedVideos.add(video);
 
-    // Increment the counter for each new reel viewed
-    this.reelsWatchedCount++;
-    setNumberWatchedShortVids("reels", this.reelsWatchedCount);
+    this.updateNumberWatchedReels();
 
-    console.log(
-      "[Instagram Reels Blocker] New reel in view, blocking for 5s (Total reels: " +
-        this.reelsWatchedCount +
-        ")"
-    );
-
-    // Block the video
     this.blockVideo(video, reelContainer);
   }
 

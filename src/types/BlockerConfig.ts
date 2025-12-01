@@ -6,6 +6,7 @@ export interface BlockerConfig {
   blockDuration: number;
   customDuration: boolean;
   grayscale: boolean;
+  maxReelCount: number;
 }
 
 export const blockerConfigDefault: BlockerConfig = {
@@ -14,6 +15,7 @@ export const blockerConfigDefault: BlockerConfig = {
   blockDuration: 5,
   customDuration: false,
   grayscale: false,
+  maxReelCount: 50,
 };
 
 export type AllBlockerConfigs = Record<Platform, BlockerConfig>;

@@ -3,130 +3,86 @@ import { focusTimerOnChangeListener } from "@/lib/storage/focusTimer";
 import type { BlockerType } from "./BlockerType";
 
 /**
- * Removes the current DOM and displays a focus message
+ * Displays the focus blocked page by navigating to a blob URL
  */
 function displayFocusDOM(): void {
-  console.log("[FocusDOM] Displaying focus DOM - reloading to stop all media");
+  console.log("[FocusDOM] Displaying focus DOM - navigating to blob URL");
 
-  // Set a flag in sessionStorage so we know to show focus DOM after reload
-  sessionStorage.setItem("showFocusDOMAfterReload", "true");
+  // Create the blocked page HTML and navigate to it via blob URL
+  const html = buildFocusBlockedPageHTML();
+  const blob = new Blob([html], { type: "text/html" });
+  const blobUrl = URL.createObjectURL(blob);
 
-  // Reload the page to completely kill all media
-  window.location.reload();
+  // Navigate to the blob URL - this completely replaces the page and stops all media
+  window.location.replace(blobUrl);
 }
 
 /**
- * Check if we should show focus DOM after reload and display it
+ * Builds the HTML for the focus blocked page
  */
-function checkAndShowFocusDOMAfterReload(): void {
-  if (sessionStorage.getItem("showFocusDOMAfterReload") === "true") {
-    sessionStorage.removeItem("showFocusDOMAfterReload");
-
-    // Stop any videos that might have started during reload
-    const videos = document.querySelectorAll("video");
-    videos.forEach((video) => {
-      video.pause();
-      video.muted = true;
-    });
-
-    // Remove all existing content from the page
-    document.documentElement.innerHTML = "";
-
-    // Create new HTML structure
-    const html = document.createElement("html");
-    const head = document.createElement("head");
-    const body = document.createElement("body");
-
-    // Add title
-    const title = document.createElement("title");
-    title.textContent = "Page Blocked";
-    head.appendChild(title);
-
-    // Add styles
-    const style = document.createElement("style");
-    style.textContent = `
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        color: #fff;
-      }
-      
-      .container {
-        text-align: center;
-        padding: 40px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        max-width: 500px;
-      }
-      
-      .icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-      }
-      
-      h1 {
-        font-size: 28px;
-        margin-bottom: 16px;
-        font-weight: 600;
-      }
-      
-      p {
-        font-size: 18px;
-        line-height: 1.6;
-        opacity: 0.9;
-      }
-    `;
-    head.appendChild(style);
-
-    const container = document.createElement("div");
-    container.className = "container";
-    container.innerHTML = `
-      <div class="icon">🔒</div>
-      <h1>Can't access this page right now</h1>
-      <p>Stay strong! Your break is almost here</p>
-      <br>
-      <p><b>Pro tip</b>: The best breaks don't involve screens. Stand up, stretch, or grab some water.</p>
-      <p>Your brain will thank you.</p>
-    `;
-    body.appendChild(container);
-
-    // Build the new document
-    html.appendChild(head);
-    html.appendChild(body);
-
-    // Replace the entire document
-    document.replaceChild(html, document.documentElement);
-
-    // Prevent any scripts from running
-    const observer = new MutationObserver(() => {
-      // Remove any dynamically added scripts and videos
-      document.querySelectorAll("script").forEach((script) => script.remove());
-      document.querySelectorAll("video, audio").forEach((media) => {
-        (media as HTMLMediaElement).pause();
-        (media as HTMLMediaElement).muted = true;
-        media.remove();
-      });
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
-
-    console.log("[FocusDOM] Focus DOM displayed after reload");
-  }
+function buildFocusBlockedPageHTML(): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Blocked</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+    
+    .container {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+    
+    p {
+      font-size: 18px;
+      line-height: 1.6;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🔒</div>
+    <h1>Can't access this page right now</h1>
+    <p>Stay strong! Your break is almost here</p>
+    <br>
+    <p><b>Pro tip</b>: The best breaks don't involve screens. Stand up, stretch, or grab some water.</p>
+    <p>Your brain will thank you.</p>
+  </div>
+</body>
+</html>`;
 }
 
 export class FocusDOM {
@@ -143,21 +99,12 @@ export class FocusDOM {
     this.isOnPage = isOnPage;
     this.blockerConstructor = blockerConstructor;
 
-    // Check if we just reloaded to show focus DOM
-    const shouldShowAfterReload = sessionStorage.getItem("showFocusDOMAfterReload") === "true";
-
-    // Check if we need to show focus DOM after a reload
-    if (shouldShowAfterReload) {
-      checkAndShowFocusDOMAfterReload();
-    }
-
     // Set up the focus timer listener
     this.onTimerUpdateListener = this.listenForFocusTimerUpdate();
     console.log("[FocusDOM] Timer listener registered");
 
     // Check if we should display focus DOM on initial load
-    // BUT skip if we just showed it after reload
-    if (isOnPage() && !shouldShowAfterReload) {
+    if (isOnPage()) {
       this.condDisplayFocusDOM();
     }
 
