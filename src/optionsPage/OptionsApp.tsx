@@ -21,12 +21,12 @@ const OptionsApp: React.FC = () => {
             <BlockerConfigurers />
           </div>
         </main>
-
+        {/* 
         <footer className={styles.footer}>
           <p className={styles.footerText}>
             Configure your preferences above. Changes are saved automatically.
           </p>
-        </footer>
+        </footer> */}
       </div>
     </div>
   );

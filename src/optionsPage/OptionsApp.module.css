@@ -1,11 +1,11 @@
 .wrapper {
-  min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 2%;
+  box-sizing: content-box;
 }
 
 .container {
-  max-width: 480px;
+  max-width: 95%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -14,7 +14,7 @@
 
 .header {
   background: white;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   padding: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -44,14 +44,14 @@
 
 .card {
   background: white;
-  border-radius: 10px;
+  border-radius: 0.625rem;
   padding: 1.25rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .footer {
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
+  border-radius: 0.75rem;
   padding: 1rem 1.5rem;
   text-align: center;
   box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.08);
@@ -64,14 +64,24 @@
 }
 
 /* Responsive design */
+@media (max-width: 1200px) {
+  .container {
+    max-width: 98%;
+  }
+}
+
 @media (max-width: 640px) {
   .wrapper {
-    padding: 1rem 0.75rem;
+    padding: 1rem 2%;
+  }
+
+  .container {
+    max-width: 96%;
   }
 
   .header {
     padding: 1.5rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
   }
 
   .title {
@@ -84,12 +94,12 @@
 
   .card {
     padding: 1rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
   }
 
   .footer {
     padding: 0.875rem 1rem;
-    border-radius: 8px;
+    border-radius: 0.5rem;
   }
 }
 

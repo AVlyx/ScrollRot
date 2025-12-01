@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
 import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
 import { blockerConfigDefault, PLATFORMS } from "@/types";
-import { getAllBlockerConfig, setAllBlockerConfig } from "@/lib/storage";
+import { getAllBlockerConfig, setAllBlockerConfig, getNumberWatchedShortVids } from "@/lib/storage";
 import styles from "./BlockerConfigurers.module.css";
 
 const BlockerConfigurers: React.FC = () => {
@@ -14,6 +14,8 @@ const BlockerConfigurers: React.FC = () => {
       ) as AllBlockerConfigs
   );
 
+  const [stats, setStats] = useState<Record<Platform, number>>({} as Record<Platform, number>);
+
   // Load from storage
   useEffect(() => {
     const getConfig = async () => {
@@ -23,6 +25,18 @@ const BlockerConfigurers: React.FC = () => {
       }
     };
     getConfig();
+  }, []);
+
+  // Load stats
+  useEffect(() => {
+    const loadStats = async () => {
+      const newStats: Record<Platform, number> = {} as Record<Platform, number>;
+      for (const platform of Object.keys(PLATFORMS) as Platform[]) {
+        newStats[platform] = await getNumberWatchedShortVids(platform);
+      }
+      setStats(newStats);
+    };
+    loadStats();
   }, []);
 
   useEffect(() => {
@@ -41,15 +55,16 @@ const BlockerConfigurers: React.FC = () => {
     reels: "📸",
     tiktok: "🎵",
     facebook: "👥",
+    snapchat: "👻",
   };
 
   return (
     <div className={styles.container}>
-      {(Object.keys(PLATFORMS) as Platform[]).map((platform, index) => (
+      {(Object.keys(PLATFORMS) as Platform[]).map((platform) => (
         <div key={platform} className={styles.platformSection}>
           <div className={styles.platformHeader}>
             <h2 className={styles.platformTitle}>
-              {platformIcons[platform] + PLATFORMS[platform]}
+              {platformIcons[platform]} {PLATFORMS[platform]}
             </h2>
           </div>
           <div className={styles.platformContent}>
@@ -58,9 +73,24 @@ const BlockerConfigurers: React.FC = () => {
               onChange={(partial) => updateConfig(platform, partial)}
             />
           </div>
-          {index < Object.keys(PLATFORMS).length - 1 && <div className={styles.divider} />}
         </div>
       ))}
+
+      {/* Stats Card */}
+      <div className={`${styles.platformSection} ${styles.statsCard}`}>
+        <h2 className={styles.statsTitle}>📊 Videos Watched</h2>
+        <div className={styles.statsGrid}>
+          {(Object.keys(PLATFORMS) as Platform[]).map((platform) => (
+            <div key={platform} className={styles.statItem}>
+              <span className={styles.statPlatform}>
+                <span>{platformIcons[platform]}</span>
+                <span>{PLATFORMS[platform]}</span>
+              </span>
+              <span className={styles.statCount}>{stats[platform] || 0}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
