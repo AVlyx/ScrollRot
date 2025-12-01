@@ -8,6 +8,7 @@ import {
 } from "@/lib/storage";
 import type { BlockerConfig } from "@/types";
 import Browser from "webextension-polyfill";
+import { setReelLimitReachedDOM } from "../reelLimitReached";
 
 function isOnShorts(): boolean {
   return (
@@ -35,12 +36,9 @@ class VideoBlocker {
   constructor(config: BlockerConfig) {
     this.config = config;
     this.init();
-    console.log({ config });
   }
 
   private async init(): Promise<void> {
-    console.log("[YouTube Shorts Blocker] Initializing...");
-
     // Wait for DOM to be ready
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => this.start());
@@ -64,8 +62,6 @@ class VideoBlocker {
     } else {
       this.removeGrayscaleFromAllElements();
     }
-
-    console.log("[YouTube Shorts Blocker] Started successfully");
   }
 
   private applyGrayscaleToContainer(container: HTMLElement): void {
@@ -181,8 +177,6 @@ class VideoBlocker {
   }
 
   private listenForScrollEvents(): void {
-    console.log("[YouTube Shorts Blocker] Setting up scroll detection...");
-
     // Create the scroll handler
     this.scrollHandler = (_: Event) => {
       const now = Date.now();
@@ -193,8 +187,6 @@ class VideoBlocker {
       }
 
       this.lastScrollTime = now;
-      console.log("[YouTube Shorts Blocker] Scroll detected, blocking next video...");
-
       // Small delay to let the new video element load
       setTimeout(() => {
         this.blockCurrentVideo();
@@ -239,13 +231,19 @@ class VideoBlocker {
       );
 
       if (button) {
-        console.log("[YouTube Shorts Blocker] Navigation button clicked, blocking next video...");
         this.scrollHandler!(e);
       }
     };
     document.addEventListener("click", this.clickHandler, { capture: true });
+  }
 
-    console.log("[YouTube Shorts Blocker] Scroll detection active");
+  private updateNumberWatchedReels() {
+    this.shortsWatchedCount++;
+    setNumberWatchedShortVids("shorts", this.shortsWatchedCount);
+
+    if (this.shortsWatchedCount >= this.config.maxReelCount) {
+      setReelLimitReachedDOM("shorts");
+    }
   }
 
   private async blockCurrentVideo(): Promise<void> {
@@ -268,7 +266,6 @@ class VideoBlocker {
     });
 
     if (!currentVideo) {
-      console.log("[YouTube Shorts Blocker] No video found in viewport");
       return;
     }
 
@@ -278,19 +275,13 @@ class VideoBlocker {
 
     // Check if this is the same video we just processed
     if (this.currentVideoSrc === videoSrc && videoSrc !== "") {
-      console.log("[YouTube Shorts Blocker] Same video (by src), skipping block");
       return;
     }
 
     this.currentVideoSrc = videoSrc;
-    console.log(
-      "[YouTube Shorts Blocker] New video detected, src:",
-      videoSrc.substring(0, 50) + "..."
-    );
 
     // Increment counter and update storage
-    this.shortsWatchedCount++;
-    await setNumberWatchedShortVids("shorts", this.shortsWatchedCount);
+    this.updateNumberWatchedReels();
 
     // If we don't have a container, use the video's parent
     if (!currentContainer) {
@@ -307,11 +298,9 @@ class VideoBlocker {
     }
 
     if (!currentContainer) {
-      console.log("[YouTube Shorts Blocker] No container found for video");
       return;
     }
 
-    console.log("[YouTube Shorts Blocker] Found current video, blocking now");
     this.blockVideo(videoElement, currentContainer);
   }
 
@@ -323,13 +312,6 @@ class VideoBlocker {
     }
 
     const unblockTime = Date.now() + this.config.blockDuration * 1000;
-
-    console.log(
-      "[YouTube Shorts Blocker] Blocking video for",
-      this.config.blockDuration,
-      "ms, autoPlayAfterBlock:",
-      this.config.autoPlayAfterBlock
-    );
 
     // Pause the video IMMEDIATELY - this is critical
     video.pause();
@@ -366,62 +348,29 @@ class VideoBlocker {
       video.removeEventListener("playing", preventPlay, { capture: true });
       video.removeEventListener("loadeddata", preventAutoPlay, { capture: true });
       this.currentBlockTimeout = null;
-      console.log("[YouTube Shorts Blocker] Unblocked short, playback allowed");
 
       // Auto-play only if configured
       if (this.config.autoPlayAfterBlock) {
-        console.log("[YouTube Shorts Blocker] Auto-play enabled, attempting to play...");
-
         // Try to play immediately
         const attemptPlay = () => {
           const currentVideo = container.querySelector("video");
           if (currentVideo) {
-            console.log("[YouTube Shorts Blocker] Video element found, calling play()");
-            console.log(
-              "[YouTube Shorts Blocker] Video paused:",
-              currentVideo.paused,
-              "readyState:",
-              currentVideo.readyState
-            );
-
             // Ensure video is in a playable state
             if (currentVideo.readyState >= 2) {
               // HAVE_CURRENT_DATA or better
-              currentVideo
-                .play()
-                .then(() => {
-                  console.log("[YouTube Shorts Blocker] ✓ Auto-play successful!");
-                })
-                .catch((error) => {
-                  console.error("[YouTube Shorts Blocker] ✗ Auto-play failed:", error);
-                  // Try clicking the video as fallback
-                  currentVideo.click();
-                });
+              currentVideo.play().catch((_) => {
+                currentVideo.click();
+              });
             } else {
               // Wait for video to be ready
-              console.log("[YouTube Shorts Blocker] Video not ready, waiting for loadeddata event");
               currentVideo.addEventListener(
                 "loadeddata",
                 () => {
-                  currentVideo
-                    .play()
-                    .then(() => {
-                      console.log(
-                        "[YouTube Shorts Blocker] ✓ Auto-play successful after loadeddata!"
-                      );
-                    })
-                    .catch((error) => {
-                      console.error(
-                        "[YouTube Shorts Blocker] ✗ Auto-play failed after loadeddata:",
-                        error
-                      );
-                    });
+                  currentVideo.play();
                 },
                 { once: true }
               );
             }
-          } else {
-            console.log("[YouTube Shorts Blocker] Video element not found for auto-play");
           }
         };
 
@@ -444,14 +393,12 @@ class VideoBlocker {
     // Check if overlay already exists to prevent duplicates
     const existingOverlay = document.querySelector(".shorts-blocker-overlay");
     if (existingOverlay) {
-      console.log("[YouTube Shorts Blocker] Overlay already exists, removing old one");
       existingOverlay.remove();
     }
 
     // Find the shorts container
     const shortsContainer = document.getElementById("page-manager");
     if (!shortsContainer) {
-      console.log("[YouTube Shorts Blocker] page-manager not found");
       return;
     }
 
@@ -589,7 +536,6 @@ class VideoBlocker {
     this.removeGrayscaleFromAllElements();
 
     this.currentVideoSrc = "";
-    console.log("[YouTube Shorts Blocker] Destroyed");
   }
 }
 
@@ -639,7 +585,6 @@ export class Blocker {
         }
         this.renewVideoBlocker();
       }, 500);
-      console.log("NEW VideoBlocker CREATED");
     });
     const observeNavigation = () => {
       if (document.body) {

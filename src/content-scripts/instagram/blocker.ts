@@ -227,7 +227,6 @@ class VideoBlocker {
   private blockVideo(video: HTMLVideoElement, container: HTMLElement): void {
     // Check once more if already blocked (race condition protection)
     if (this.blockedReels.has(container)) {
-      console.log("[Instagram Reels Blocker] Container already blocked in blockVideo, aborting");
       return;
     }
 
@@ -267,64 +266,28 @@ class VideoBlocker {
       video.removeEventListener("play", preventPlay, { capture: true });
       video.removeEventListener("playing", preventPlay, { capture: true });
       this.blockedReels.delete(container);
-      console.log("[Instagram Reels Blocker] Unblocked reel, playback allowed");
 
       // Auto-play only if configured
       if (this.config.autoPlayAfterBlock) {
-        console.log("[Instagram Reels Blocker] Auto-play enabled, attempting to play...");
-
         // Try to play immediately
         const attemptPlay = () => {
           const currentVideo = container.querySelector("video");
           if (currentVideo) {
-            console.log("[Instagram Reels Blocker] Video element found, calling play()");
-            console.log(
-              "[Instagram Reels Blocker] Video paused:",
-              currentVideo.paused,
-              "readyState:",
-              currentVideo.readyState
-            );
-
             // Ensure video is in a playable state
             if (currentVideo.readyState >= 2) {
               // HAVE_CURRENT_DATA or better
-              currentVideo
-                .play()
-                .then(() => {
-                  console.log("[Instagram Reels Blocker] ✓ Auto-play successful!");
-                })
-                .catch((error) => {
-                  console.error("[Instagram Reels Blocker] ✗ Auto-play failed:", error);
-                  // Try clicking the video as fallback
-                  currentVideo.click();
-                });
+              currentVideo.play().catch((_) => {
+                currentVideo.click();
+              });
             } else {
-              // Wait for video to be ready
-              console.log(
-                "[Instagram Reels Blocker] Video not ready, waiting for loadeddata event"
-              );
               currentVideo.addEventListener(
                 "loadeddata",
                 () => {
-                  currentVideo
-                    .play()
-                    .then(() => {
-                      console.log(
-                        "[Instagram Reels Blocker] ✓ Auto-play successful after loadeddata!"
-                      );
-                    })
-                    .catch((error) => {
-                      console.error(
-                        "[Instagram Reels Blocker] ✗ Auto-play failed after loadeddata:",
-                        error
-                      );
-                    });
+                  currentVideo.play();
                 },
                 { once: true }
               );
             }
-          } else {
-            console.log("[Instagram Reels Blocker] Video element not found for auto-play");
           }
         };
 
@@ -347,7 +310,6 @@ class VideoBlocker {
     // Check if overlay already exists to prevent duplicates
     const existingOverlay = videoWrapper.querySelector(".reels-blocker-overlay");
     if (existingOverlay) {
-      console.log("[Instagram Reels Blocker] Overlay already exists, skipping");
       return;
     }
 
@@ -448,7 +410,6 @@ class VideoBlocker {
 
     this.blockedReels.clear();
     this.observedContainers.clear();
-    console.log("[Instagram Reels Blocker] Destroyed");
   }
 }
 
@@ -498,7 +459,6 @@ export class Blocker {
         }
         this.renewVideoBlocker();
       }, 500);
-      console.log("NEW VideoBlocker CREATED");
     });
     const observeNavigation = () => {
       if (document.body) {

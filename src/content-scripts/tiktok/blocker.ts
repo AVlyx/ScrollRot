@@ -7,6 +7,7 @@ import {
 } from "@/lib/storage";
 import { type BlockerConfig } from "@/types";
 import Browser from "webextension-polyfill";
+import { setReelLimitReachedDOM } from "../reelLimitReached";
 
 interface BlockedVideo {
   element: HTMLElement;
@@ -37,8 +38,6 @@ class VideoBlocker {
   }
 
   private async init(): Promise<void> {
-    console.log("[TikTok Blocker] Initializing...");
-
     // Wait for DOM to be ready
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", () => this.start());
@@ -57,34 +56,15 @@ class VideoBlocker {
 
     // Watch for new videos being added to the DOM
     this.watchForNewVideos();
-
-    console.log("[TikTok Blocker] Started successfully");
   }
 
   private createIntersectionObserver(): void {
     this.intersectionObserver = new IntersectionObserver(
       (entries) => {
-        console.log(
-          `[TikTok Blocker] IntersectionObserver callback fired with ${entries.length} entries`
-        );
         entries.forEach((entry) => {
-          console.log("[TikTok Blocker] Intersection entry:", {
-            isIntersecting: entry.isIntersecting,
-            intersectionRatio: entry.intersectionRatio,
-            target: entry.target.className.substring(0, 50),
-            boundingRect: {
-              top: entry.boundingClientRect.top,
-              bottom: entry.boundingClientRect.bottom,
-              height: entry.boundingClientRect.height,
-            },
-          });
-
           if (entry.isIntersecting) {
             const videoContainer = entry.target as HTMLElement;
-            console.log("[TikTok Blocker] Container is intersecting, calling handleVideoInView");
             this.handleVideoInView(videoContainer);
-          } else {
-            console.log("[TikTok Blocker] Container is NOT intersecting, skipping");
           }
         });
       },
@@ -93,51 +73,25 @@ class VideoBlocker {
         rootMargin: "0px",
       }
     );
-    console.log("[TikTok Blocker] IntersectionObserver created with threshold 0.5");
   }
 
   private observeExistingVideos(): void {
     // Find TikTok video containers
     const videoContainers = this.findVideoContainers();
 
-    console.log(
-      `[TikTok Blocker] observeExistingVideos called - found ${videoContainers.length} containers, currently observing ${this.observedContainers.size}`
-    );
-
     let newObservations = 0;
     videoContainers.forEach((container) => {
-      const containerId = (container as any).__tiktokBlockerId || "unknown";
-
       // Check if we're already observing this container
       if (!this.observedContainers.has(container)) {
         if (this.intersectionObserver) {
           this.intersectionObserver.observe(container);
           this.observedContainers.add(container);
           newObservations++;
-          console.log(
-            `[TikTok Blocker] ✓ Now observing NEW container [${containerId}]:`,
-            container.tagName,
-            container.className.substring(0, 50)
-          );
         }
-      } else {
-        // Already observing, but let's check if video is in view
-        const rect = container.getBoundingClientRect();
-        const isInView = rect.top < window.innerHeight && rect.bottom > 0;
-        console.log(
-          `[TikTok Blocker] Container [${containerId}] already observed, isInView: ${isInView}`
-        );
       }
     });
 
     if (newObservations > 0) {
-      console.log(
-        `[TikTok Blocker] ✓✓ Added ${newObservations} new containers for observation (total observed: ${this.observedContainers.size})`
-      );
-    } else {
-      console.log(
-        `[TikTok Blocker] No new containers to observe (total observed: ${this.observedContainers.size})`
-      );
     }
   }
 
@@ -149,29 +103,18 @@ class VideoBlocker {
 
     // Method 1: Find all article elements with ArticleItemContainer class
     const articles = document.querySelectorAll('article[class*="ArticleItemContainer"]');
-    console.log(
-      `[TikTok Blocker] Found ${articles.length} article elements with ArticleItemContainer`
-    );
 
     articles.forEach((article) => {
       const scrollIndex = article.getAttribute("data-scroll-index");
       const video = article.querySelector("video");
 
       if (video) {
-        console.log(`[TikTok Blocker] Found video in article with scroll-index: ${scrollIndex}`, {
-          hasVideo: true,
-          videoSrc: (video as HTMLVideoElement).src.substring(0, 80),
-          articleClasses: article.className.substring(0, 80),
-        });
-
         // Use the article element as the container
         if (!containers.includes(article as HTMLElement)) {
           // Store the scroll index as the container ID for easy tracking
           (article as any).__tiktokBlockerId = `article-${scrollIndex}`;
           containers.push(article as HTMLElement);
         }
-      } else {
-        console.log(`[TikTok Blocker] Article with scroll-index ${scrollIndex} has no video yet`);
       }
     });
 
@@ -179,11 +122,7 @@ class VideoBlocker {
     if (containers.length === 0) {
       const columnList = document.getElementById("column-list-container");
       if (columnList) {
-        console.log(`[TikTok Blocker] Fallback: Found column-list-container`);
         const articlesInColumn = columnList.querySelectorAll("article");
-        console.log(
-          `[TikTok Blocker] Found ${articlesInColumn.length} articles in column-list-container`
-        );
 
         articlesInColumn.forEach((article) => {
           const video = article.querySelector("video");
@@ -192,9 +131,6 @@ class VideoBlocker {
           if (video && !containers.includes(article as HTMLElement)) {
             (article as any).__tiktokBlockerId = `article-${scrollIndex}`;
             containers.push(article as HTMLElement);
-            console.log(
-              `[TikTok Blocker] Added article with scroll-index ${scrollIndex} from column-list`
-            );
           }
         });
       }
@@ -202,7 +138,6 @@ class VideoBlocker {
 
     // Method 3: Last resort fallback - find by video elements
     if (containers.length === 0) {
-      console.log(`[TikTok Blocker] Last resort: searching for videos and finding parent articles`);
       const videos = document.querySelectorAll("video");
 
       videos.forEach((video) => {
@@ -212,14 +147,10 @@ class VideoBlocker {
           const scrollIndex = article.getAttribute("data-scroll-index") || "unknown";
           (article as any).__tiktokBlockerId = `article-${scrollIndex}`;
           containers.push(article as HTMLElement);
-          console.log(
-            `[TikTok Blocker] Added article with scroll-index ${scrollIndex} via video search`
-          );
         }
       });
     }
 
-    console.log(`[TikTok Blocker] Found ${containers.length} total article containers`);
     return containers;
   }
 
@@ -239,11 +170,6 @@ class VideoBlocker {
               element.querySelectorAll('article[class*="ArticleItemContainer"]').length > 0;
 
             if (isArticle || hasArticles) {
-              console.log(
-                `[TikTok Blocker] Mutation detected: new article${
-                  hasArticles ? "s" : ""
-                } added to DOM`
-              );
               shouldReobserve = true;
             }
           }
@@ -257,7 +183,6 @@ class VideoBlocker {
         }
 
         this.observeDebounceTimer = window.setTimeout(() => {
-          console.log("[TikTok Blocker] Debounced: calling observeExistingVideos");
           this.observeExistingVideos();
           this.observeDebounceTimer = null;
         }, 200);
@@ -272,67 +197,46 @@ class VideoBlocker {
 
     // Also set up periodic checks for new videos (as a fallback)
     this.periodicCheckInterval = window.setInterval(() => {
-      console.log("[TikTok Blocker] Periodic check triggered");
       this.observeExistingVideos();
     }, 2000); // Check every 2 seconds
+  }
 
-    console.log("[TikTok Blocker] MutationObserver and periodic check setup complete");
+  private updateNumberWatchedReels() {
+    this.videosWatchedCount++;
+    setNumberWatchedShortVids("tiktok", this.videosWatchedCount);
+
+    if (this.videosWatchedCount >= this.config.maxReelCount) {
+      setReelLimitReachedDOM("tiktok");
+    }
   }
 
   private handleVideoInView(container: HTMLElement): void {
-    const containerId = (container as any).__tiktokBlockerId || "unknown";
-    console.log(
-      `[TikTok Blocker] ========== handleVideoInView called for [${containerId}] ==========`
-    );
-
     // Check if we've already processed this container
     if (this.processedContainers.has(container)) {
-      console.log(`[TikTok Blocker] Container [${containerId}] already processed, skipping`);
       return;
     }
 
     // Mark this container as processed
     this.processedContainers.add(container);
-    console.log(`[TikTok Blocker] ✓ Marked container [${containerId}] as processed`);
-
-    // Increment counter and update storage
-    this.videosWatchedCount++;
-    setNumberWatchedShortVids("tiktok", this.videosWatchedCount);
+    this.updateNumberWatchedReels();
 
     // Find the video element within this container
     const video = container.querySelector("video") as HTMLVideoElement;
 
     if (!video) {
-      console.log(`[TikTok Blocker] No video found in container [${containerId}]`);
       return;
     }
 
-    console.log(`[TikTok Blocker] Found video in container [${containerId}]:`, {
-      src: video.src.substring(0, 80),
-      paused: video.paused,
-      readyState: video.readyState,
-      currentTime: video.currentTime,
-    });
-
     // Block the video if it's not already blocked
     if (!this.blockedVideos.has(container)) {
-      console.log(`[TikTok Blocker] Blocking video in container [${containerId}]...`);
       this.blockVideo(container, video);
-    } else {
-      console.log(`[TikTok Blocker] Container [${containerId}] already has an active block`);
     }
   }
 
   private blockVideo(container: HTMLElement, video: HTMLVideoElement): void {
-    const containerId = (container as any).__tiktokBlockerId || "unknown";
-
     // Pause the video immediately
     if (!video.paused) {
-      console.log("[TikTok Blocker] Pausing video...");
       video.pause();
-      console.log("[TikTok Blocker] Video paused, currentTime:", video.currentTime);
-    } else {
-      console.log("[TikTok Blocker] Video already paused");
     }
 
     if (this.config.grayscale) {
@@ -342,15 +246,10 @@ class VideoBlocker {
     }
 
     // Reset to beginning
-    console.log("[TikTok Blocker] Resetting video to beginning");
     video.currentTime = 0;
 
     // Calculate unblock time
     const unblockTime = Date.now() + this.config.blockDuration * 1000;
-
-    console.log("[TikTok Blocker] Block duration:", this.config.blockDuration, "seconds");
-    console.log("[TikTok Blocker] Unblock time:", new Date(unblockTime).toLocaleTimeString());
-
     // Store blocked video info
     const blockedVideo: BlockedVideo = {
       element: container,
@@ -361,12 +260,7 @@ class VideoBlocker {
     // Add event listeners to prevent playback
     const preventPlay = (e: Event) => {
       const now = Date.now();
-      const remaining = Math.ceil((unblockTime - now) / 1000);
-
       if (now < unblockTime) {
-        console.log(
-          `[TikTok Blocker] Prevented play attempt - ${remaining}s remaining for article [${containerId}]`
-        );
         e.preventDefault();
         e.stopImmediatePropagation();
 
@@ -385,50 +279,32 @@ class VideoBlocker {
     const preventClick = (e: MouseEvent) => {
       const now = Date.now();
       if (now < unblockTime) {
-        console.log(`[TikTok Blocker] Prevented click on video for article [${containerId}]`);
         e.preventDefault();
         e.stopImmediatePropagation();
       }
     };
     video.addEventListener("click", preventClick, true);
 
-    console.log("[TikTok Blocker] Event listeners attached to video element");
-
     // Set up unblock timer - STORE THE TIMER ID
     const unblockTimer = window.setTimeout(() => {
-      console.log(`[TikTok Blocker] ========== UNBLOCKING article [${containerId}] ==========`);
-
       // Remove event listeners
       video.removeEventListener("play", preventPlay, true);
       video.removeEventListener("playing", preventPlay, true);
       video.removeEventListener("click", preventClick, true);
 
-      console.log("[TikTok Blocker] Event listeners removed");
-
       // Remove from blocked videos
       this.blockedVideos.delete(container);
-
-      console.log("[TikTok Blocker] Attempting to auto-play video...");
 
       // Try to start playing the video
       const attemptPlay = () => {
         const currentVideo = container.querySelector("video") as HTMLVideoElement;
         if (currentVideo) {
-          console.log(
-            "[TikTok Blocker] Found video for auto-play, paused:",
-            currentVideo.paused,
-            "readyState:",
-            currentVideo.readyState
-          );
-
           // Ensure video is in a playable state
           if (currentVideo.readyState >= 2) {
             // HAVE_CURRENT_DATA or better
             currentVideo
               .play()
-              .then(() => {
-                console.log("[TikTok Blocker] ✓ Auto-play successful!");
-              })
+              .then(() => {})
               .catch((error) => {
                 console.error("[TikTok Blocker] ✗ Auto-play failed:", error);
                 // Try clicking the video as fallback
@@ -436,24 +312,14 @@ class VideoBlocker {
               });
           } else {
             // Wait for video to be ready
-            console.log("[TikTok Blocker] Video not ready, waiting for loadeddata event");
             currentVideo.addEventListener(
               "loadeddata",
               () => {
-                currentVideo
-                  .play()
-                  .then(() => {
-                    console.log("[TikTok Blocker] ✓ Auto-play successful after loadeddata!");
-                  })
-                  .catch((error) => {
-                    console.error("[TikTok Blocker] ✗ Auto-play failed after loadeddata:", error);
-                  });
+                currentVideo.play();
               },
               { once: true }
             );
           }
-        } else {
-          console.log("[TikTok Blocker] Video element not found for auto-play");
         }
       };
 
@@ -466,23 +332,17 @@ class VideoBlocker {
 
     // Add visual indicator (optional)
     this.addBlockIndicator(container, unblockTime);
-
-    console.log(
-      `[TikTok Blocker] ========== BLOCKING SETUP COMPLETE for article [${containerId}] ==========`
-    );
   }
 
   private addBlockIndicator(container: HTMLElement, unblockTime: number): void {
     // Find the video element first
     const video = container.querySelector("video");
     if (!video) {
-      console.log("[TikTok Blocker] No video found for overlay");
       return;
     }
     // Check if overlay already exists to prevent duplicates
     const existingOverlay = container.querySelector(".tiktok-blocker-overlay");
     if (existingOverlay) {
-      console.log("[TikTok Blocker] Overlay already exists, removing old one");
       existingOverlay.remove();
     }
 
@@ -560,8 +420,6 @@ class VideoBlocker {
     // Append to video element so it's perfectly centered on the video
     video.parentElement?.appendChild(overlay);
 
-    console.log("[TikTok Blocker] Overlay added to video's parent");
-
     // Store overlay reference for cleanup
     const blockedVideo = this.blockedVideos.get(container);
     if (blockedVideo) {
@@ -576,7 +434,6 @@ class VideoBlocker {
         countdownText.textContent = `Wait ${remaining}s...`;
         animationFrameId = requestAnimationFrame(updateCountdown);
       } else {
-        console.log("[TikTok Blocker] Countdown complete, removing overlay");
         cancelAnimationFrame(animationFrameId);
         overlay.remove();
       }
@@ -587,15 +444,12 @@ class VideoBlocker {
     // Failsafe: Force remove overlay after block duration + buffer
     setTimeout(() => {
       if (overlay.parentElement) {
-        console.log("[TikTok Blocker] Failsafe overlay removal triggered");
         overlay.remove();
       }
     }, this.config.blockDuration * 1000 + 500);
   }
 
   public destroy(): void {
-    console.log("[TikTok Blocker] Destroying blocker...");
-
     // Disconnect observers
     if (this.mainObserver) {
       this.mainObserver.disconnect();
@@ -644,8 +498,6 @@ class VideoBlocker {
     this.blockedVideos.clear();
     this.observedContainers.clear();
     this.processedContainers.clear();
-
-    console.log("[TikTok Blocker] Destroyed successfully");
   }
 }
 export class Blocker {
@@ -694,7 +546,6 @@ export class Blocker {
         }
         this.renewVideoBlocker();
       }, 500);
-      console.log("NEW VideoBlocker CREATED");
     });
     const observeNavigation = () => {
       if (document.body) {
