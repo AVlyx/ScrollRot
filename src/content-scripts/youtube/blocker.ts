@@ -23,7 +23,6 @@ class VideoBlocker {
   private lastScrollTime: number = 0;
   private scrollCooldown: number = 1000; // Minimum time between scroll detections
   private currentBlockTimeout: number | null = null;
-  private currentVideoSrc: string = "";
   private shortsWatchedCount: number = 0;
   private scrollHandler: ((e: Event) => void) | null = null;
   private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -278,10 +277,6 @@ class VideoBlocker {
 
     // Get the video source to track which video this is
     const videoElement = currentVideo as HTMLVideoElement;
-    const videoSrc = videoElement.src || videoElement.currentSrc || "";
-
-    this.currentVideoSrc = videoSrc;
-
     // Increment counter and update storage
     this.updateNumberWatchedReels();
 
@@ -536,8 +531,6 @@ class VideoBlocker {
 
     // Remove grayscale from all elements on destroy
     this.removeGrayscaleFromAllElements();
-
-    this.currentVideoSrc = "";
   }
 }
 

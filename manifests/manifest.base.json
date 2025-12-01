@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ScrollRot - Placeholder name, different description for chrome and firefox",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Add delays between YouTube Shorts, Instagram Reels & TikTok. Includes Pomodoro timer to block distracting content.",
   "action": {
     "default_popup": "src/popupPage/index.html"
