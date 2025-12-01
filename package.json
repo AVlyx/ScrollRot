@@ -23,7 +23,8 @@
     "screenpromo:p2": "npx capture-website assets/p2.html --width=1280 --height=800 --output=website/assets/p2.png --overwrite --scale-factor=1",
     "screenpromo:p3": "npx capture-website assets/p3.html --width=1280 --height=800 --output=website/assets/p3.png --overwrite --scale-factor=1",
     "screenpromo:p4": "npx capture-website assets/p4.html --width=1280 --height=800 --output=website/assets/p4.png --overwrite --scale-factor=1",
-    "screenpromo:pages": "npm run screenpromo:p1 && npm run screenpromo:p2 && npm run screenpromo:p3 && npm run screenpromo:p4",
+    "screenpromo:p5": "npx capture-website assets/p5.html --width=1280 --height=800 --output=website/assets/p5.png --overwrite --scale-factor=1",
+    "screenpromo:pages": "npm run screenpromo:p1 && npm run screenpromo:p2 && npm run screenpromo:p3 && npm run screenpromo:p4 && npm run screenpromo:p5",
     "screenpromo": "npm run screenpromo:marquee && npm run screenpromo:small && npm run screenpromo:pages"
   },
   "devDependencies": {
