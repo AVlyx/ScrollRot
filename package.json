@@ -19,10 +19,11 @@
     "screenpromo:marquee": "npx capture-website assets/marquee-promo.html --width=1400 --height=560 --output=assets/marquee-promo.png --overwrite --scale-factor=1",
     "screenpromo:small": "npx capture-website assets/small-promo.html --width=440 --height=280 --output=assets/small-promo.png --overwrite --scale-factor=1",
     "screenpromo:og": "npx capture-website assets/og-image.html --width=1200 --height=630 --output=website/assets/og-image.png --overwrite --scale-factor=1",
-    "screenpromo:p1": "npx capture-website assets/p1.html --width=1280 --height=800 --output=assets/p1.png --overwrite --scale-factor=1",
-    "screenpromo:p2": "npx capture-website assets/p2.html --width=1280 --height=800 --output=assets/p2.png --overwrite --scale-factor=1",
-    "screenpromo:p3": "npx capture-website assets/p3.html --width=1280 --height=800 --output=assets/p3.png --overwrite --scale-factor=1",
-    "screenpromo:pages": "npm run screenpromo:p1 && npm run screenpromo:p2 && npm run screenpromo:p3",
+    "screenpromo:p1": "npx capture-website assets/p1.html --width=1280 --height=800 --output=website/assets/p1.png --overwrite --scale-factor=1",
+    "screenpromo:p2": "npx capture-website assets/p2.html --width=1280 --height=800 --output=website/assets/p2.png --overwrite --scale-factor=1",
+    "screenpromo:p3": "npx capture-website assets/p3.html --width=1280 --height=800 --output=website/assets/p3.png --overwrite --scale-factor=1",
+    "screenpromo:p4": "npx capture-website assets/p4.html --width=1280 --height=800 --output=website/assets/p4.png --overwrite --scale-factor=1",
+    "screenpromo:pages": "npm run screenpromo:p1 && npm run screenpromo:p2 && npm run screenpromo:p3 && npm run screenpromo:p4",
     "screenpromo": "npm run screenpromo:marquee && npm run screenpromo:small && npm run screenpromo:pages"
   },
   "devDependencies": {

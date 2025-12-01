@@ -23,7 +23,7 @@ function buildBlockedPageHTML(reelPlatform: Platform): string {
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #b3d5ecff 0%, #8af7f1ff 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
