@@ -185,6 +185,7 @@ class VideoBlocker {
   private listenForScrollEvents(): void {
     // Create the scroll handler
     this.scrollHandler = (_: Event) => {
+      console.log("[ScrollRot] Scroll detected");
       const now = Date.now();
 
       // Check if enough time has passed since last scroll
@@ -278,11 +279,6 @@ class VideoBlocker {
     // Get the video source to track which video this is
     const videoElement = currentVideo as HTMLVideoElement;
     const videoSrc = videoElement.src || videoElement.currentSrc || "";
-
-    // Check if this is the same video we just processed
-    if (this.currentVideoSrc === videoSrc && videoSrc !== "") {
-      return;
-    }
 
     this.currentVideoSrc = videoSrc;
 
