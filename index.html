@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="ScrollRot adds delays between short-form videos on YouTube Shorts, Instagram Reels, and TikTok to help break infinite scroll addiction"
+      content="ScrollRot adds delays between short-form videos on YouTube Shorts, Instagram Reels, Facebook Reels, TikTok, and Snapchat Spotlight to help break infinite scroll addiction"
     />
     <title>ScrollRot - Break Free from Short-Form Video Addiction | Chrome Extension</title>
     <meta
       name="description"
-      content="Add mindful delays between YouTube Shorts, TikTok, and Instagram Reels videos. Track your usage and reduce screen time addiction. Free Chrome extension for digital wellbeing."
+      content="Add mindful delays between YouTube Shorts, TikTok, Instagram Reels, Facebook Reels, and Snapchat Spotlight. Track your usage, set daily limits, and reduce screen time addiction. Free Chrome extension for digital wellbeing."
     />
     <meta
       name="keywords"
-      content="YouTube Shorts timer, TikTok break, Instagram Reels control, digital wellbeing, screen time reduction, mindful scrolling, short-form video addiction"
+      content="YouTube Shorts timer, TikTok break, Instagram Reels control, Facebook Reels limiter, Snapchat Spotlight blocker, digital wellbeing, screen time reduction, mindful scrolling, short-form video addiction"
     />
 
     <!-- Open Graph / Social Media -->
@@ -22,7 +22,7 @@
     <meta property="og:title" content="ScrollRot - Break Free from Short-Form Video Addiction" />
     <meta
       property="og:description"
-      content="Add mindful delays between videos on YouTube Shorts, TikTok, and Instagram Reels. Reclaim your time with this free Chrome extension."
+      content="Add mindful delays between videos on YouTube Shorts, TikTok, Instagram Reels, Facebook Reels, and Snapchat Spotlight. Reclaim your time with this free Chrome extension."
     />
     <meta property="og:url" content="https://scrollrot.net" />
     <meta property="og:image" content="https://scrollrot.net/assets/og-image.png" />
@@ -38,7 +38,7 @@
     <meta name="twitter:title" content="ScrollRot - Break Free from Short-Form Video Addiction" />
     <meta
       name="twitter:description"
-      content="Add mindful delays between YouTube Shorts, TikTok, and Instagram Reels videos. Reclaim your time."
+      content="Add mindful delays between YouTube Shorts, TikTok, Instagram Reels, Facebook Reels, and Snapchat Spotlight. Reclaim your time."
     />
     <meta name="twitter:image" content="https://scrollrot.net/assets/og-image.png" />
 
@@ -175,6 +175,112 @@
         height: 24px;
       }
 
+      /* Screenshot Gallery */
+      .screenshots {
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 2rem;
+      }
+
+      .screenshots h2 {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .screenshots .subtitle {
+        text-align: center;
+        font-size: 1.125rem;
+        color: var(--text-light);
+        margin-bottom: 3rem;
+      }
+
+      .screenshot-viewer {
+        position: relative;
+        max-width: 1280px;
+        margin: 0 auto;
+      }
+
+      .screenshot-container {
+        position: relative;
+        width: 100%;
+        padding-bottom: 62.5%; /* 800/1280 = 0.625 */
+        background: var(--bg-alt);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .screenshot-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: none;
+      }
+
+      .screenshot-container img.active {
+        display: block;
+      }
+
+      .screenshot-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 1rem;
+        pointer-events: none;
+      }
+
+      .screenshot-nav button {
+        pointer-events: all;
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: var(--text);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transition: all 0.3s;
+      }
+
+      .screenshot-nav button:hover {
+        background: white;
+        transform: scale(1.1);
+      }
+
+      .screenshot-dots {
+        display: flex;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--border);
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .dot.active {
+        background: var(--primary);
+        transform: scale(1.2);
+      }
+
       /* Demo Video Section */
       .demo-video {
         max-width: 1200px;
@@ -188,7 +294,7 @@
 
       .video-wrapper {
         position: relative;
-        padding-bottom: 56.25%; /* 16:9 aspect ratio (9/16 * 100) */
+        padding-bottom: 56.25%;
         height: 0;
         overflow: hidden;
         margin: 0 auto;
@@ -235,7 +341,7 @@
 
       .stat-label {
         color: var(--text-light);
-        font-size: 1rem;
+        font-size: 1.125rem;
       }
 
       /* Problem Section */
@@ -243,21 +349,21 @@
         max-width: 1200px;
         margin: 6rem auto;
         padding: 0 2rem;
+        text-align: center;
       }
 
-      .section-title {
+      .problem h2 {
         font-size: 2.5rem;
         font-weight: 700;
-        text-align: center;
         margin-bottom: 1rem;
+        color: var(--text);
       }
 
-      .section-subtitle {
-        text-align: center;
-        color: var(--text-light);
+      .problem-intro {
         font-size: 1.25rem;
+        color: var(--text-light);
         margin-bottom: 4rem;
-        max-width: 700px;
+        max-width: 800px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -270,16 +376,15 @@
       }
 
       .problem-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 20px;
-        border: 2px solid var(--border);
-        transition: transform 0.3s, box-shadow 0.3s;
+        background: var(--bg-alt);
+        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        text-align: center;
+        transition: transform 0.3s;
       }
 
       .problem-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
       }
 
       .problem-icon {
@@ -295,7 +400,7 @@
 
       .problem-card p {
         color: var(--text-light);
-        line-height: 1.8;
+        line-height: 1.7;
       }
 
       /* Solution Section */
@@ -303,38 +408,24 @@
         background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         color: white;
         padding: 6rem 2rem;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .solution::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        opacity: 0.5;
       }
 
       .solution-content {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 0 auto;
-        position: relative;
-        z-index: 1;
         text-align: center;
       }
 
       .solution h2 {
         font-size: 2.5rem;
-        margin-bottom: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
       }
 
-      .solution p {
+      .solution > p {
         font-size: 1.25rem;
+        margin-bottom: 4rem;
         opacity: 0.95;
-        margin-bottom: 3rem;
         max-width: 700px;
         margin-left: auto;
         margin-right: auto;
@@ -342,41 +433,36 @@
 
       .how-it-works {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        margin-top: 4rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 3rem;
+        margin-top: 3rem;
       }
 
       .step {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 2rem;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
       }
 
       .step-number {
-        display: inline-block;
-        width: 50px;
-        height: 50px;
-        background: white;
-        color: var(--primary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
-        font-size: 1.5rem;
+        font-size: 2rem;
         font-weight: 700;
-        line-height: 50px;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .step h3 {
-        font-size: 1.25rem;
-        margin-bottom: 0.75rem;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
       }
 
       .step p {
-        font-size: 1rem;
         opacity: 0.9;
-        margin-bottom: 0;
+        line-height: 1.7;
       }
 
       /* Features Section */
@@ -386,40 +472,54 @@
         padding: 0 2rem;
       }
 
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text);
+      }
+
+      .section-subtitle {
+        text-align: center;
+        font-size: 1.125rem;
+        color: var(--text-light);
+        margin-bottom: 4rem;
+      }
+
       .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
       }
 
       .feature {
         padding: 2rem;
-        border-radius: 20px;
-        background: white;
-        border: 2px solid var(--border);
-        transition: all 0.3s;
+        background: var(--bg-alt);
+        border-radius: 16px;
+        transition: transform 0.3s, box-shadow 0.3s;
       }
 
       .feature:hover {
-        border-color: var(--primary);
         transform: translateY(-5px);
-        box-shadow: 0 20px 40px rgba(99, 102, 241, 0.1);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
       }
 
       .feature-icon {
-        font-size: 2.5rem;
+        font-size: 3rem;
         margin-bottom: 1rem;
+        display: block;
       }
 
       .feature h3 {
         font-size: 1.25rem;
         margin-bottom: 0.75rem;
+        color: var(--text);
       }
 
       .feature p {
         color: var(--text-light);
-        line-height: 1.8;
+        line-height: 1.7;
       }
 
       /* Testimonials */
@@ -436,23 +536,22 @@
       .testimonial-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        gap: 2.5rem;
         margin-top: 3rem;
       }
 
       .testimonial {
         background: white;
-        padding: 2rem;
-        border-radius: 20px;
-        border: 2px solid var(--border);
+        padding: 2.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       }
 
       .testimonial-text {
         font-size: 1.125rem;
-        line-height: 1.8;
+        line-height: 1.7;
         color: var(--text);
-        margin-bottom: 1.5rem;
-        font-style: italic;
+        margin-bottom: 2rem;
       }
 
       .testimonial-author {
@@ -462,71 +561,76 @@
       }
 
       .author-avatar {
-        width: 50px;
-        height: 50px;
+        width: 48px;
+        height: 48px;
+        background: var(--primary);
+        color: white;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         font-weight: 700;
         font-size: 1.25rem;
       }
 
       .author-info h4 {
-        font-size: 1rem;
+        color: var(--text);
         margin-bottom: 0.25rem;
       }
 
       .author-info p {
-        font-size: 0.875rem;
         color: var(--text-light);
+        font-size: 0.875rem;
       }
 
-      /* CTA Section */
+      /* Final CTA */
       .final-cta {
-        max-width: 800px;
-        margin: 6rem auto;
-        padding: 0 2rem;
         text-align: center;
+        padding: 6rem 2rem;
+        max-width: 800px;
+        margin: 0 auto;
       }
 
       .final-cta h2 {
         font-size: 2.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
+        color: var(--text);
       }
 
       .final-cta p {
         font-size: 1.25rem;
         color: var(--text-light);
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
       }
 
       .cta-secondary {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: 600;
-        margin-top: 1rem;
         display: inline-block;
+        margin-top: 1.5rem;
+        color: var(--text-light);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
+
+      .cta-secondary:hover {
+        color: var(--primary);
       }
 
       /* Footer */
       footer {
         background: var(--text);
         color: white;
-        padding: 3rem 2rem 2rem;
-        margin-top: 6rem;
+        padding: 4rem 2rem 2rem;
       }
 
       .footer-content {
         max-width: 1200px;
         margin: 0 auto;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 3rem;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
       }
 
       .footer-section h3 {
@@ -534,16 +638,21 @@
         font-size: 1.125rem;
       }
 
-      .footer-section p,
       .footer-section a {
-        color: rgba(255, 255, 255, 0.7);
-        text-decoration: none;
-        line-height: 2;
         display: block;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s;
       }
 
       .footer-section a:hover {
         color: white;
+      }
+
+      .footer-section p {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 0.5rem;
       }
 
       .footer-bottom {
@@ -552,7 +661,7 @@
         padding-top: 2rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         text-align: center;
-        color: rgba(255, 255, 255, 0.5);
+        color: rgba(255, 255, 255, 0.6);
       }
 
       /* Responsive */
@@ -562,92 +671,44 @@
         }
 
         .hero .subtitle {
-          font-size: 1.25rem;
+          font-size: 1.125rem;
         }
 
         .section-title {
           font-size: 2rem;
         }
 
+        .screenshot-nav button {
+          width: 40px;
+          height: 40px;
+          font-size: 1.25rem;
+        }
+
         .nav-links {
           display: none;
         }
-
-        .stats-container {
-          gap: 2rem;
-        }
-
-        .video-wrapper {
-          border-radius: 10px;
-        }
-      }
-
-      /* Animations */
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .hero,
-      .problem-card,
-      .feature,
-      .testimonial {
-        animation: fadeInUp 0.6s ease-out;
-      }
-
-      .problem-card:nth-child(2),
-      .feature:nth-child(2),
-      .testimonial:nth-child(2) {
-        animation-delay: 0.1s;
-      }
-
-      .problem-card:nth-child(3),
-      .feature:nth-child(3),
-      .testimonial:nth-child(3) {
-        animation-delay: 0.2s;
       }
     </style>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F3P9VC9T5D"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-
-      gtag("config", "G-F3P9VC9T5D");
-    </script>
   </head>
   <body>
     <!-- Header -->
     <header>
       <nav>
-        <div class="logo">
-          <img src="./assets/icon_32.png" />
-          <span>ScrollRot</span>
-        </div>
+        <div class="logo">⏳ ScrollRot</div>
         <ul class="nav-links">
           <li><a href="#features">Features</a></li>
           <li><a href="#how-it-works">How It Works</a></li>
-          <li><a href="#demo">Demo</a></li>
+          <li><a href="#testimonials">Reviews</a></li>
         </ul>
       </nav>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
-      <h1>Take Back Control of Your Screen Time</h1>
+      <h1>Break Free from Endless Scrolling</h1>
       <p class="subtitle">
-        Add mindful delays between YouTube Shorts, TikTok, and Instagram Reels videos. Break the
-        infinite scroll loop.
+        Add mindful delays to YouTube Shorts, Instagram Reels, Facebook Reels, TikTok, and Snapchat
+        Spotlight. Take back control of your time.
       </p>
       <a
         href="https://chromewebstore.google.com/detail/scrollrot/onnoadnheeagpgnlohcidaadlojgpdhd"
@@ -662,64 +723,76 @@
         </svg>
         Add to Chrome - It's Free
       </a>
-      <p style="margin-top: 1rem; color: var(--text-light); font-size: 0.875rem">
-        No credit card required • 100% free
-      </p>
     </section>
 
-    <!-- Demo Video Section -->
-    <section class="demo-video" id="demo">
-      <div class="demo-container">
-        <h2 class="section-title">See ScrollRot in Action</h2>
-        <p class="section-subtitle">
-          Watch how ScrollRot adds mindful pauses to break the scroll loop
-        </p>
-        <div class="video-wrapper">
-          <iframe
-            width="560"
-            height="315"
-            src="https://www.youtube.com/embed/HdGUjVpGhGA"
-            title="ScrollRot Demo"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            allowfullscreen
-          >
-          </iframe>
+    <!-- Screenshot Gallery -->
+    <section class="screenshots" id="screenshots">
+      <div class="screenshot-viewer">
+        <div class="screenshot-container">
+          <img src="assets/" alt="ScrollRot Screenshot 1" class="active" />
+          <img src="assets/p2.png" alt="ScrollRot Screenshot 2" />
+          <img src="assets/p3.png" alt="ScrollRot Screenshot 3" />
+          <img src="assets/p4.png" alt="ScrollRot Screenshot 4" />
+
+          <div class="screenshot-nav">
+            <button onclick="changeScreenshot(-1)" aria-label="Previous screenshot">‹</button>
+            <button onclick="changeScreenshot(1)" aria-label="Next screenshot">›</button>
+          </div>
+        </div>
+
+        <div class="screenshot-dots">
+          <span class="dot active" onclick="setScreenshot(0)"></span>
+          <span class="dot" onclick="setScreenshot(1)"></span>
+          <span class="dot" onclick="setScreenshot(2)"></span>
+          <span class="dot" onclick="setScreenshot(3)"></span>
         </div>
       </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- Demo Video -->
+    <section class="demo-video">
+      <div class="demo-container">
+        <div class="video-wrapper">
+          <iframe
+            src="https://www.youtube.com/embed/cW-tDwFgMR8"
+            title="ScrollRot Demo Video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
     <section class="stats">
       <div class="stats-container">
         <div class="stat">
-          <div class="stat-number">2.5+</div>
-          <div class="stat-label">Hours Saved Daily</div>
+          <div class="stat-number">5+</div>
+          <div class="stat-label">Platforms Supported</div>
         </div>
         <div class="stat">
-          <div class="stat-number">60%</div>
-          <div class="stat-label">Average Usage Reduction</div>
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Free Forever</div>
         </div>
         <div class="stat">
-          <div class="stat-number">3</div>
-          <div class="stat-label">Major Platforms Supported</div>
+          <div class="stat-number">0</div>
+          <div class="stat-label">Data Collected</div>
         </div>
       </div>
     </section>
 
     <!-- Problem Section -->
     <section class="problem">
-      <h2 class="section-title">Sound Familiar?</h2>
-      <p class="section-subtitle">
-        You're not alone. Short-form video platforms are designed to keep you watching "just one
-        more."
+      <h2>You're Not Alone</h2>
+      <p class="problem-intro">
+        Short-form video platforms are designed to keep you watching "just one more."
       </p>
 
       <div class="problem-grid">
         <div class="problem-card">
-          <div class="problem-icon">😵‍💫</div>
-          <h3>Lost Hours</h3>
+          <div class="problem-icon">⏰</div>
+          <h3>Lost Time</h3>
           <p>
             You open TikTok for "5 minutes" and suddenly an hour has vanished. The infinite scroll
             keeps you trapped in a dopamine loop.
@@ -763,8 +836,7 @@
             <div class="step-number">2</div>
             <h3>Automatic Delays</h3>
             <p>
-              A brief pause appears between videos on Shorts, Reels, and TikTok. Your brain gets
-              time to think.
+              A brief pause appears between videos on all platforms. Your brain gets time to think.
             </p>
           </div>
           <div class="step">
@@ -791,6 +863,22 @@
           <p>Set your delay from 3 to 10 seconds. Find the sweet spot that works for you.</p>
         </div>
         <div class="feature">
+          <div class="feature-icon">🔢</div>
+          <h3>Daily Video Limits</h3>
+          <p>
+            Set a maximum number of videos per day. Once you hit your limit, access is blocked until
+            the next day.
+          </p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">⚫</div>
+          <h3>Grayscale Mode</h3>
+          <p>
+            Reduce visual appeal by making videos grayscale. Less color means less dopamine and less
+            temptation.
+          </p>
+        </div>
+        <div class="feature">
           <div class="feature-icon">📊</div>
           <h3>Usage Tracking</h3>
           <p>
@@ -798,11 +886,19 @@
           </p>
         </div>
         <div class="feature">
-          <div class="feature-icon">🎯</div>
-          <h3>Multi-Platform</h3>
+          <div class="feature-icon">🍅</div>
+          <h3>Pomodoro Timer</h3>
           <p>
-            Works seamlessly on YouTube Shorts, TikTok, and Instagram Reels. One extension, three
-            platforms.
+            Use the built-in Pomodoro timer to completely block distracting content during focus
+            sessions.
+          </p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <h3>5 Platforms Supported</h3>
+          <p>
+            Works on YouTube Shorts, TikTok, Instagram Reels, Facebook Reels, and Snapchat
+            Spotlight.
           </p>
         </div>
         <div class="feature">
@@ -814,14 +910,14 @@
           <div class="feature-icon">⚡</div>
           <h3>Lightweight</h3>
           <p>
-            Won't slow down your browser or drain your battery. Only active when you are on
-            Instagram, Youtube or TikTok.
+            Won't slow down your browser or drain your battery. Only active when you visit supported
+            platforms.
           </p>
         </div>
         <div class="feature">
           <div class="feature-icon">🆓</div>
           <h3>100% Free</h3>
-          <p>No subscriptions. No premium tiers. No hidden costs.</p>
+          <p>No subscriptions. No premium tiers. No hidden costs. Always free.</p>
         </div>
       </div>
     </section>
@@ -932,7 +1028,7 @@
         </div>
         <div class="footer-section">
           <h3>Connect</h3>
-          <a href="mailto:vawolyx@gmail.com">vawolyx@gmail.com</a>
+          <a href="mailto:scrollrot@scrollrot.net">scrollrot@scrollrot.net</a>
           <p>Made with ❤️ for digital wellbeing</p>
         </div>
       </div>
@@ -940,6 +1036,39 @@
         <p>&copy; 2025 ScrollRot. All rights reserved.</p>
       </div>
     </footer>
+
+    <!-- Screenshot Gallery JavaScript -->
+    <script>
+      let currentScreenshot = 0;
+      const screenshots = document.querySelectorAll(".screenshot-container img");
+      const dots = document.querySelectorAll(".dot");
+
+      function showScreenshot(index) {
+        screenshots.forEach((img, i) => {
+          img.classList.toggle("active", i === index);
+        });
+        dots.forEach((dot, i) => {
+          dot.classList.toggle("active", i === index);
+        });
+        currentScreenshot = index;
+      }
+
+      function changeScreenshot(direction) {
+        let newIndex = currentScreenshot + direction;
+        if (newIndex < 0) newIndex = screenshots.length - 1;
+        if (newIndex >= screenshots.length) newIndex = 0;
+        showScreenshot(newIndex);
+      }
+
+      function setScreenshot(index) {
+        showScreenshot(index);
+      }
+
+      // Auto-advance every 5 seconds
+      setInterval(() => {
+        changeScreenshot(1);
+      }, 5000);
+    </script>
 
     <!-- Schema Markup for SEO -->
     <script type="application/ld+json">
@@ -959,12 +1088,7 @@
           "ratingValue": "5",
           "ratingCount": "1"
         },
-        "description": "Add mindful delays between YouTube Shorts, TikTok, and Instagram Reels videos. Track your usage and reduce screen time addiction.",
-        "url": "https://scrollrot.net",
-        "author": {
-          "@type": "Organization",
-          "name": "ScrollRot"
-        }
+        "description": "Add mindful delays between YouTube Shorts, TikTok, Instagram Reels, Facebook Reels, and Snapchat Spotlight videos. Track usage, set daily limits, and reduce screen time addiction."
       }
     </script>
   </body>
