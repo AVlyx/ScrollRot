@@ -10,12 +10,15 @@ const contentScripts = [
   { name: "youtube", input: "src/content-scripts/youtube/youtube.ts" },
   { name: "instagram", input: "src/content-scripts/instagram/instagram.ts" },
   { name: "tiktok", input: "src/content-scripts/tiktok/tiktok.ts" },
+  { name: "facebook", input: "src/content-scripts/facebook/facebook.ts" },
+  { name: "snapchat", input: "src/content-scripts/snapchat/snapchat.ts" },
+
   { name: "badge", input: "src/service-workers/badge.ts" },
 ];
 
 // Get browser from command line arg or default to chrome
-const targetBrowser = process.argv[2] || 'chrome';
-const outDir = targetBrowser === 'firefox' ? 'distFirefox' : 'distChrome';
+const targetBrowser = process.argv[2] || "chrome";
+const outDir = targetBrowser === "firefox" ? "distFirefox" : "distChrome";
 
 console.log(`\n🔨 Building for ${targetBrowser.toUpperCase()}...\n`);
 
@@ -31,7 +34,7 @@ async function buildUI() {
 
 async function buildContentScripts() {
   console.log("📦 Building content scripts...");
-  
+
   for (const script of contentScripts) {
     const folder = script.input.split("/")[1];
     try {
@@ -64,44 +67,42 @@ async function buildContentScripts() {
 
 function mergeManifests() {
   console.log(`📝 Creating ${targetBrowser} manifest...`);
-  
+
   // Read base manifest
   const baseManifest = JSON.parse(
     readFileSync(resolve(__dirname, "manifests/manifest.base.json"), "utf-8")
   );
-  
+
   // Read browser-specific manifest
   const browserManifestPath = resolve(__dirname, `manifests/manifest.${targetBrowser}.json`);
-  const browserManifest = JSON.parse(
-    readFileSync(browserManifestPath, "utf-8")
-  );
-  
+  const browserManifest = JSON.parse(readFileSync(browserManifestPath, "utf-8"));
+
   // Merge manifests (browser-specific overrides base)
   const finalManifest = { ...baseManifest, ...browserManifest };
-  
+
   // Remove the _comment field if it exists
   delete finalManifest._comment;
-  
+
   // Write final manifest
   writeFileSync(
     resolve(__dirname, outDir, "manifest.json"),
     JSON.stringify(finalManifest, null, 2)
   );
-  
+
   console.log(`✅ Manifest created for ${targetBrowser}`);
 }
 
 function copyPublicAssets() {
   console.log("📁 Copying public assets...");
-  
+
   const publicDir = resolve(__dirname, "public");
   const assetsSource = resolve(publicDir, "assets");
   const assetsTarget = resolve(__dirname, outDir, "assets");
-  
+
   if (existsSync(assetsSource)) {
     cpSync(assetsSource, assetsTarget, { recursive: true });
   }
-  
+
   console.log("✅ Assets copied");
 }
 
@@ -113,13 +114,13 @@ async function buildAll() {
       rmSync(outDir, { recursive: true, force: true });
     }
     mkdirSync(outDir, { recursive: true });
-    
+
     // Build all components
     await buildUI();
     await buildContentScripts();
     copyPublicAssets();
     mergeManifests();
-    
+
     console.log(`\n✨ Build complete for ${targetBrowser.toUpperCase()}! Output: ${outDir}\n`);
   } catch (error) {
     console.error("❌ Build failed:", error);

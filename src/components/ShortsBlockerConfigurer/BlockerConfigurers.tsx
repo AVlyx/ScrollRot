@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
 import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
-import { blockerConfigDefault } from "@/types";
+import { blockerConfigDefault, PLATFORMS } from "@/types";
 import { getAllBlockerConfig, setAllBlockerConfig } from "@/lib/storage";
 import styles from "./BlockerConfigurers.module.css";
 
 const BlockerConfigurers: React.FC = () => {
-  const [configs, setConfigs] = useState<AllBlockerConfigs>({
-    shorts: { ...blockerConfigDefault },
-    reels: { ...blockerConfigDefault },
-    tiktok: { ...blockerConfigDefault },
-  });
+  // Initialize with all platforms dynamically
+  const [configs, setConfigs] = useState<AllBlockerConfigs>(
+    () =>
+      Object.fromEntries(
+        Object.keys(PLATFORMS).map((platform) => [platform, { ...blockerConfigDefault }])
+      ) as AllBlockerConfigs
+  );
 
   // Load from storage
   useEffect(() => {
@@ -34,25 +36,20 @@ const BlockerConfigurers: React.FC = () => {
     }));
   };
 
-  const platformLabels: Record<Platform, string> = {
-    shorts: "YouTube Shorts",
-    reels: "Instagram Reels",
-    tiktok: "TikTok",
-  };
-
   const platformIcons: Record<Platform, string> = {
     shorts: "🎬",
     reels: "📸",
     tiktok: "🎵",
+    facebook: "👥",
   };
 
   return (
     <div className={styles.container}>
-      {(Object.keys(configs) as Platform[]).map((platform, index) => (
+      {(Object.keys(PLATFORMS) as Platform[]).map((platform, index) => (
         <div key={platform} className={styles.platformSection}>
           <div className={styles.platformHeader}>
             <h2 className={styles.platformTitle}>
-              {platformIcons[platform] + platformLabels[platform]}
+              {platformIcons[platform] + PLATFORMS[platform]}
             </h2>
           </div>
           <div className={styles.platformContent}>
@@ -61,7 +58,7 @@ const BlockerConfigurers: React.FC = () => {
               onChange={(partial) => updateConfig(platform, partial)}
             />
           </div>
-          {index < Object.keys(configs).length - 1 && <div className={styles.divider} />}
+          {index < Object.keys(PLATFORMS).length - 1 && <div className={styles.divider} />}
         </div>
       ))}
     </div>

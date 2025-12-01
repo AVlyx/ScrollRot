@@ -23,7 +23,9 @@
       "matches": [
         "https://www.instagram.com/*",
         "https://www.youtube.com/*",
-        "https://www.tiktok.com/*"
+        "https://www.tiktok.com/*",
+        "https://www.facebook.com/*",
+        "https://www.snapchat.com/*"
       ]
     }
   ],
@@ -41,6 +43,16 @@
     {
       "matches": ["https://www.tiktok.com/*"],
       "js": ["content-scripts/tiktok.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.facebook.com/*"],
+      "js": ["content-scripts/facebook.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.snapchat.com/*"],
+      "js": ["content-scripts/snapchat.js"],
       "run_at": "document_start"
     }
   ]

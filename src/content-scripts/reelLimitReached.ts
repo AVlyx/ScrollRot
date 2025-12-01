@@ -1,4 +1,4 @@
-import type { Platform } from "@/types";
+import { PLATFORMS, type Platform } from "@/types";
 
 export function setReelLimitReachedDOM(reelPlatform: Platform): void {
   const html = buildBlockedPageHTML(reelPlatform);
@@ -106,10 +106,10 @@ function buildBlockedPageHTML(reelPlatform: Platform): string {
 </head>
 <body>
   <div class="container">
-    <div class="icon">🎯</div>
+    <div class="icon">😫</div>
     <h1>Video Limit Reached</h1>
-    <div class="platform">${reelPlatform}</div>
-    <p>You've reached your daily limit for ${reelPlatform}. Take a break and focus on what matters!</p>
+    <div class="platform">${PLATFORMS[reelPlatform]}</div>
+    <p>You've reached your daily limit for ${PLATFORMS[reelPlatform]}. Take a break and focus on what matters!</p>
     <div class="tip">
       <strong>💡 What to do instead:</strong>
       Take a walk, read a book, connect with friends, or work on your goals. 

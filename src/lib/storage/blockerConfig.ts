@@ -1,6 +1,7 @@
 import isEqual from "fast-deep-equal";
 import {
   blockerConfigDefault,
+  PLATFORMS,
   type AllBlockerConfigs,
   type BlockerConfig,
   type Platform,
@@ -10,11 +11,22 @@ import Browser from "webextension-polyfill";
 export async function getAllBlockerConfig(): Promise<AllBlockerConfigs | null> {
   try {
     const result = await Browser.storage.local.get("blockerConfigs");
-    const blockerConfigs = (result.blockerConfigs ?? null) as AllBlockerConfigs | null;
-    if (!blockerConfigs) {
+    const blockerConfigsPartial = (result.blockerConfigs ??
+      null) as Partial<AllBlockerConfigs> | null;
+
+    if (!blockerConfigsPartial) {
       return null;
     }
-    return blockerConfigs;
+
+    const allPlatforms = Object.keys(PLATFORMS) as Platform[];
+    const fullConfig = Object.fromEntries(
+      allPlatforms.map((platform) => [
+        platform,
+        { ...blockerConfigDefault, ...(blockerConfigsPartial[platform] ?? {}) },
+      ])
+    ) as AllBlockerConfigs;
+
+    return fullConfig;
   } catch (err) {
     console.error("Failed to load configs:", err);
     return null;
