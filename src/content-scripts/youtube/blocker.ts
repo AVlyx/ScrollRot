@@ -62,6 +62,12 @@ class VideoBlocker {
     } else {
       this.removeGrayscaleFromAllElements();
     }
+
+    // Block the initial video when first landing on Shorts
+    // Small delay to ensure video element is loaded
+    setTimeout(() => {
+      this.blockCurrentVideo();
+    }, 100);
   }
 
   private applyGrayscaleToContainer(container: HTMLElement): void {
