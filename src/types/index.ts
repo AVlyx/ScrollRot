@@ -1,3 +1,3 @@
-export * from "./blockerConfig";
-export * from "./platform";
+export * from "./BlockerConfig";
+export * from "./Platform";
 export * from "./focusTimer";

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import BlockerConfigurer from "./BlockerConfigurer";
 import type { AllBlockerConfigs, BlockerConfig, Platform } from "@/types";
-import { blockerConfigDefault, PLATFORMS } from "@/types";
+import { blockerConfigDefault, PLATFORMS, PLATFORM_ICONS } from "@/types";
 import { getAllBlockerConfig, setAllBlockerConfig, getNumberWatchedShortVids } from "@/lib/storage";
 import styles from "./BlockerConfigurers.module.css";
 
@@ -50,13 +50,7 @@ const BlockerConfigurers: React.FC = () => {
     }));
   };
 
-  const platformIcons: Record<Platform, string> = {
-    shorts: "🎬",
-    reels: "📸",
-    tiktok: "🎵",
-    facebook: "👥",
-    snapchat: "👻",
-  };
+  const platformIcons = PLATFORM_ICONS;
 
   return (
     <div className={styles.container}>

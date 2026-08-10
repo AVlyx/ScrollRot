@@ -1,4 +1,4 @@
-import { type Platform } from "@/types";
+import { PLATFORMS, type Platform } from "@/types";
 import Browser from "webextension-polyfill";
 
 interface WatchedData {
@@ -52,4 +52,32 @@ export async function getNumberWatchedShortVids(platform: Platform): Promise<num
     console.error("Failed to load configs:", err);
     return 0;
   }
+}
+
+export function watchedVidsOnChangeListener(
+  callback: (platform: Platform, count: number) => void
+): () => void {
+  const callbackGuard = (
+    changes: { [key: string]: Browser.Storage.StorageChange },
+    areaName: string
+  ) => {
+    if (areaName !== "local") {
+      return;
+    }
+    for (const [key, change] of Object.entries(changes)) {
+      if (!key.startsWith("nwatched")) {
+        continue;
+      }
+      const platform = key.slice("nwatched".length) as Platform;
+      if (!(platform in PLATFORMS)) {
+        continue;
+      }
+      const data = change.newValue as WatchedData | null | undefined;
+      callback(platform, data?.count ?? 0);
+    }
+  };
+
+  Browser.storage.onChanged.addListener(callbackGuard);
+
+  return () => Browser.storage.onChanged.removeListener(callbackGuard);
 }

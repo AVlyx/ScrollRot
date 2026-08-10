@@ -1,4 +1,4 @@
-import type { Platform } from "./platform";
+import type { Platform } from "./Platform";
 
 export interface BlockerConfig {
   enabled: boolean;

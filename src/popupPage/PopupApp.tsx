@@ -1,11 +1,9 @@
 import React from "react";
 import styles from "./PopupApp.module.css";
 import { FocusTimerWidget } from "@/components/FocusTimer";
-import { OpenSettingsButton } from "@/components";
+import { OpenSettingsButton, WatchedStatsWidget } from "@/components";
 
 const PopupApp: React.FC = () => {
-  const email = "vawolyx@gmail.com";
-
   return (
     <div className={styles.app}>
       <main className={styles.main}>
@@ -17,19 +15,8 @@ const PopupApp: React.FC = () => {
           <OpenSettingsButton />
         </div>
 
-        <div className={styles.banner}>
-          <h2 className={styles.bannerTitle}>✨ Thank you for using ScrollRot!</h2>
-          <p className={styles.bannerText}>
-            If you want to help me, please leave a review on the Chrome Web Store. Contact me at{" "}
-            <a
-              href={`mailto:${email}`}
-              className={styles.emailLink}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {email}
-            </a>
-          </p>
+        <div className={styles.stats}>
+          <WatchedStatsWidget />
         </div>
       </footer>
     </div>

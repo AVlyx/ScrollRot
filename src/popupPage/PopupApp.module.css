@@ -26,45 +26,10 @@
   margin: 0 auto 1.25rem;
 }
 
-/* Banner Styles */
-.banner {
+/* Watched Stats Section */
+.stats {
   max-width: 360px;
   margin: 0 auto;
-  text-align: center;
-}
-
-.bannerTitle {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem 0;
-  color: #111827;
-  line-height: 1.5;
-}
-
-.bannerText {
-  font-size: 0.875rem;
-  margin: 0;
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-/* Email Link */
-.emailLink {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.15s ease;
-}
-
-.emailLink:hover {
-  color: #2563eb;
-  text-decoration: underline;
-}
-
-.emailLink:focus {
-  outline: 2px solid #93c5fd;
-  outline-offset: 2px;
-  border-radius: 2px;
 }
 
 /* Dark Mode */
@@ -77,26 +42,6 @@
     background: #1f2937;
     border-top-color: #374151;
   }
-
-  .bannerTitle {
-    color: #f9fafb;
-  }
-
-  .bannerText {
-    color: #9ca3af;
-  }
-
-  .emailLink {
-    color: #60a5fa;
-  }
-
-  .emailLink:hover {
-    color: #3b82f6;
-  }
-
-  .emailLink:focus {
-    outline-color: #60a5fa;
-  }
 }
 
 /* Responsive Design */
@@ -107,13 +52,5 @@
 
   .footer {
     padding: 0.875rem 1rem 1.25rem;
-  }
-
-  .bannerTitle {
-    font-size: 0.9375rem;
-  }
-
-  .bannerText {
-    font-size: 0.8125rem;
   }
 }

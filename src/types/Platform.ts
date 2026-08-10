@@ -7,3 +7,11 @@ export const PLATFORMS = {
 } as const;
 
 export type Platform = keyof typeof PLATFORMS;
+
+export const PLATFORM_ICONS: Record<Platform, string> = {
+  shorts: "🎬",
+  reels: "📸",
+  tiktok: "🎵",
+  facebook: "👥",
+  snapchat: "👻",
+};
